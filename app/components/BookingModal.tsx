@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { X, Calendar, Clock, User, Phone, Mail, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Style, BookingFormData } from '@/types';
+import { Style, BookingFormData } from '../types';
 
 interface BookingModalProps {
   isOpen: boolean;
