@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Category } from '@/types';
+import { Category } from '../types';
 
 interface CategoryFilterProps {
   categories: Category[];
