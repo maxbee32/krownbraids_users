@@ -64,7 +64,7 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
       duration: '5-6 hrs',
       rating: 4.9,
       reviews: 178,
-      image: '/assets/img/style-10.jpg',
+      image: '/assets/img/style-11.jpg',
       popularity: 92,
     },
     {
@@ -92,33 +92,6 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
       stopCamera();
     };
   }, []);
-
-  // Monitor video ready state
-  useEffect(() => {
-    if (videoRef.current) {
-      const video = videoRef.current;
-      
-      const handleCanPlay = () => {
-        console.log('Video can play!');
-        setVideoReady(true);
-        setIsCameraLoading(false);
-      };
-      
-      const handlePlaying = () => {
-        console.log('Video is playing!');
-        setIsCameraActive(true);
-        setIsCameraLoading(false);
-      };
-      
-      video.addEventListener('canplay', handleCanPlay);
-      video.addEventListener('playing', handlePlaying);
-      
-      return () => {
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('playing', handlePlaying);
-      };
-    }
-  }, [videoRef.current]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -149,8 +122,9 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
 
       console.log('Attempting to start camera...');
       console.log('Camera attempt #:', cameraAttempts + 1);
+      console.log('videoRef.current exists?', !!videoRef.current);
 
-      // Try with simpler constraints first
+      // Get the stream
       let stream;
       try {
         console.log('Trying simple constraints...');
@@ -177,22 +151,34 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
       
       streamRef.current = stream;
       
+      // NOW videoRef.current should exist because video is always rendered
       if (videoRef.current) {
         const video = videoRef.current;
         video.srcObject = stream;
         video.setAttribute('playsinline', 'true');
         
-        // Force a load and play
+        // Force a load
         await video.load();
+        
+        // Set up event listeners before playing
+        const handleCanPlay = () => {
+          console.log('Video can play!');
+          setVideoReady(true);
+        };
+        
+        const handlePlaying = () => {
+          console.log('Video is playing!');
+          setIsCameraActive(true);
+          setIsCameraLoading(false);
+          setVideoReady(true);
+        };
+        
+        video.addEventListener('canplay', handleCanPlay);
+        video.addEventListener('playing', handlePlaying);
         
         try {
           await video.play();
           console.log('Video play() called successfully');
-          
-          // Set active state immediately if play succeeds
-          setIsCameraActive(true);
-          setIsCameraLoading(false);
-          setVideoReady(true);
         } catch (playError) {
           console.error('Video play error:', playError);
           // Try playing again after a short delay
@@ -209,6 +195,10 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
             }
           }, 500);
         }
+      } else {
+        console.error('videoRef.current is still null!');
+        setCameraError('Video element not found. Please refresh and try again.');
+        setIsCameraLoading(false);
       }
     } catch (err: any) {
       console.error('Camera error details:', err);
@@ -316,6 +306,11 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
         setIsComplete(false);
       }
       setCameraAttempts(0);
+      // Reset state before starting
+      setIsCameraActive(false);
+      setCameraError(null);
+      setIsCameraLoading(false);
+      setVideoReady(false);
       startCamera();
     } else {
       stopCamera();
@@ -384,111 +379,101 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
             </div>
 
             {!selectedImage ? (
-              <div>
-                {activeTab === 'upload' ? (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="relative border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center hover:border-purple-400 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100/50"
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                        <Upload className="w-8 h-8 text-purple-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-700">Click to upload</p>
-                        <p className="text-xs text-gray-400 mt-1">JPG, PNG, or WebP (Max 5MB)</p>
-                      </div>
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
+              <div className="relative">
+                {/* VIDEO ELEMENT - Always rendered so ref exists! */}
+                <div className={`relative rounded-2xl overflow-hidden bg-black ${isCameraActive ? '' : 'hidden'}`}>
+                  <video
+                    ref={videoRef}
+                    className="w-full aspect-[3/4] object-cover"
+                    playsInline
+                    autoPlay
+                    muted
+                  />
+                  <canvas ref={canvasRef} className="hidden" />
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
+                    <button
+                      onClick={capturePhoto}
+                      className="px-8 py-4 bg-white rounded-full shadow-lg hover:scale-110 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!videoReady}
+                    >
+                      <Camera className="w-7 h-7 text-gray-800" />
+                    </button>
+                    <button
+                      onClick={stopCamera}
+                      className="px-4 py-4 bg-red-500 rounded-full shadow-lg hover:scale-110 transition-transform text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
-                ) : (
-                  <div className="relative">
-                    {isCameraLoading ? (
-                      <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-gray-200">
-                        <Loader2 className="w-10 h-10 text-purple-500 animate-spin mx-auto mb-3" />
-                        <p className="text-gray-600 font-medium">Starting camera...</p>
-                        <p className="text-xs text-gray-400 mt-1">Please allow camera access</p>
-                      </div>
-                    ) : cameraError ? (
-                      <div className="text-center py-8 px-4 bg-red-50 rounded-2xl border-2 border-red-200">
-                        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                        <p className="text-red-600 font-medium mb-2">{cameraError}</p>
-                        <div className="flex flex-wrap gap-3 justify-center">
-                          <button
-                            onClick={startCamera}
-                            className="px-6 py-2 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-colors flex items-center gap-2"
-                          >
-                            <RefreshCw className="w-4 h-4" />
-                            Try Again
-                          </button>
-                          <button
-                            onClick={() => handleTabChange('upload')}
-                            className="px-6 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors"
-                          >
-                            Use Upload Instead
-                          </button>
-                        </div>
-                      </div>
-                    ) : isCameraActive ? (
-                      <div className="relative rounded-2xl overflow-hidden bg-black">
-                        <video
-                          ref={videoRef}
-                          className="w-full aspect-[3/4] object-cover"
-                          playsInline
-                          autoPlay
-                          muted
-                        />
-                        <canvas ref={canvasRef} className="hidden" />
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
-                          <button
-                            onClick={capturePhoto}
-                            className="px-8 py-4 bg-white rounded-full shadow-lg hover:scale-110 transition-transform"
-                            disabled={!videoReady}
-                          >
-                            <Camera className="w-7 h-7 text-gray-800" />
-                          </button>
-                          <button
-                            onClick={stopCamera}
-                            className="px-4 py-4 bg-red-500 rounded-full shadow-lg hover:scale-110 transition-transform text-white"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-                        <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white text-xs rounded-full flex items-center gap-1">
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                          Live
-                        </div>
-                        {!videoReady && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                            <Loader2 className="w-8 h-8 text-white animate-spin" />
-                          </div>
-                        )}
-                      </div>
-                    ) : (
+                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white text-xs rounded-full flex items-center gap-1">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    Live
+                  </div>
+                  {!videoReady && isCameraActive && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                      <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Loading Spinner - Shown while camera is starting */}
+                {isCameraLoading && !isCameraActive && (
+                  <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-gray-200">
+                    <Loader2 className="w-10 h-10 text-purple-500 animate-spin mx-auto mb-3" />
+                    <p className="text-gray-600 font-medium">Starting camera...</p>
+                    <p className="text-xs text-gray-400 mt-1">Please allow camera access</p>
+                    <p className="text-xs text-gray-400 mt-2">Check your browser permissions</p>
+                  </div>
+                )}
+
+                {/* Error State */}
+                {cameraError && !isCameraActive && (
+                  <div className="text-center py-8 px-4 bg-red-50 rounded-2xl border-2 border-red-200">
+                    <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                    <p className="text-red-600 font-medium mb-2">{cameraError}</p>
+                    <p className="text-xs text-gray-500 mb-4">
+                      Tips: 
+                      <br />• Make sure your camera is connected and not being used by another app
+                      <br />• Allow camera access in your browser settings
+                      <br />• Try refreshing the page
+                    </p>
+                    <div className="flex flex-wrap gap-3 justify-center">
                       <button
                         onClick={startCamera}
-                        className="w-full py-16 border-2 border-dashed border-gray-300 rounded-2xl hover:border-purple-400 transition-colors bg-gray-50 hover:bg-gray-100/50 flex flex-col items-center gap-3"
+                        className="px-6 py-2 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-colors flex items-center gap-2"
                       >
-                        <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                          <Camera className="w-8 h-8 text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-700">Start Camera</p>
-                          <p className="text-xs text-gray-400 mt-1">Take a selfie</p>
-                          <p className="text-xs text-purple-500 mt-2">Click to access your camera</p>
-                        </div>
+                        <RefreshCw className="w-4 h-4" />
+                        Try Again
                       </button>
-                    )}
+                      <button
+                        onClick={() => handleTabChange('upload')}
+                        className="px-6 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors"
+                      >
+                        Use Upload Instead
+                      </button>
+                    </div>
                   </div>
+                )}
+
+                {/* Start Camera Button - Only shown when not loading, no error, and not active */}
+                {!isCameraLoading && !isCameraActive && !cameraError && (
+                  <button
+                    onClick={startCamera}
+                    className="w-full py-16 border-2 border-dashed border-gray-300 rounded-2xl hover:border-purple-400 transition-colors bg-gray-50 hover:bg-gray-100/50 flex flex-col items-center gap-3"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-700">Start Camera</p>
+                      <p className="text-xs text-gray-400 mt-1">Take a selfie</p>
+                      <p className="text-xs text-purple-500 mt-2">Click to access your camera</p>
+                    </div>
+                  </button>
                 )}
               </div>
             ) : (
+              // Image Preview
               <div className="relative rounded-2xl overflow-hidden bg-gray-100">
                 <div className="relative aspect-[3/4]">
                   <Image
