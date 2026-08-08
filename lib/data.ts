@@ -1,4 +1,4 @@
-import { Category, Style } from '@/types';
+import { Category, Style } from '../app/types';
 
 export const categories: Category[] = [
   { id: 'box-braids', name: 'Box Braids' },
