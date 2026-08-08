@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Heart, Star, Sparkles, ShoppingBag } from 'lucide-react';
+import { Heart, Star, Sparkles, ShoppingBag, ChevronRight } from 'lucide-react';
 import { marketplaceItems } from '../../lib/data';
+import toast from 'react-hot-toast';
 
 export default function MarketplaceSection() {
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const [cartItems, setCartItems] = useState<Set<string>>(new Set());
+  const [showAll, setShowAll] = useState<boolean>(false);
 
   const toggleLike = (id: string) => {
     const newLiked = new Set(likedItems);
@@ -17,6 +20,27 @@ export default function MarketplaceSection() {
     }
     setLikedItems(newLiked);
   };
+
+  const addToCart = (item: any) => {
+    const newCart = new Set(cartItems);
+    if (newCart.has(item.id)) {
+      toast.error(`${item.name} is already in your cart`);
+      return;
+    }
+    newCart.add(item.id);
+    setCartItems(newCart);
+    toast.success(`✅ Added ${item.name} to cart!`);
+  };
+
+  const handleViewAll = () => {
+    setShowAll(!showAll);
+    if (!showAll) {
+      toast.success('Showing all marketplace items');
+    }
+  };
+
+  // Show only first 4 items if not showing all
+  const displayedItems = showAll ? marketplaceItems : marketplaceItems.slice(0, 4);
 
   return (
     <section className="py-12">
@@ -37,7 +61,7 @@ export default function MarketplaceSection() {
 
         {/* Marketplace Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {marketplaceItems.map((item) => (
+          {displayedItems.map((item) => (
             <div
               key={item.id}
               className="group bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1"
@@ -111,9 +135,16 @@ export default function MarketplaceSection() {
                   <span>({item.reviews})</span>
                 </div>
 
-                <button className="w-full mt-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 text-sm">
+                <button
+                  onClick={() => addToCart(item)}
+                  className={`w-full mt-4 py-2.5 text-white font-medium rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2 text-sm ${
+                    cartItems.has(item.id)
+                      ? 'bg-emerald-600 hover:bg-emerald-700'
+                      : 'bg-gray-900 hover:bg-gray-800'
+                  }`}
+                >
                   <ShoppingBag className="w-4 h-4" />
-                  Add to Cart
+                  {cartItems.has(item.id) ? 'In Cart ✓' : 'Add to Cart'}
                 </button>
               </div>
             </div>
@@ -121,10 +152,24 @@ export default function MarketplaceSection() {
         </div>
 
         {/* View All Button */}
-        <div className="text-center mt-8">
-          <button className="btn-outline px-8 py-3 rounded-full">
-            View All Marketplace Items
-          </button>
+        {marketplaceItems.length > 4 && (
+          <div className="text-center mt-8">
+            <button
+              onClick={handleViewAll}
+              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-amber-500 text-amber-600 font-semibold rounded-full hover:bg-amber-500 hover:text-white transition-all hover:shadow-lg"
+            >
+              {showAll ? 'Show Less' : 'View All Marketplace Items'}
+              <ChevronRight className={`w-4 h-4 transition-transform ${showAll ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
+        )}
+
+        {/* Show count */}
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-400">
+            Showing {displayedItems.length} of {marketplaceItems.length} items
+            {cartItems.size > 0 && ` • ${cartItems.size} item${cartItems.size > 1 ? 's' : ''} in cart`}
+          </p>
         </div>
       </div>
     </section>
