@@ -1,19 +1,77 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #fdf8f3;
-  --color-primary-100: #faf0e6;
-  --color-primary-200: #f5e0cc;
-  --color-primary-300: #ecc9a8;
-  --color-primary-400: #e0ad7a;
-  --color-primary-500: #d4914c;
-  --color-primary-600: #c47a38;
-  --color-primary-700: #a4642e;
-  --color-primary-800: #85512a;
-  --color-primary-900: #6d4326;
-  
+  /* ─────────────────────────────────────────────────────────────
+     Professional palette
+     - Ink:      near-black, used for text + primary buttons
+     - Stone:    warm neutrals for backgrounds, borders
+     - Accent:   amber, used only for the primary CTA
+     ───────────────────────────────────────────────────────────── */
+
+  /* Ink — near-black scale for text, buttons, icons */
+  --color-ink-50:  #fafaf9;
+  --color-ink-100: #f5f5f4;
+  --color-ink-200: #e7e5e4;
+  --color-ink-300: #d6d3d1;
+  --color-ink-400: #a8a29e;
+  --color-ink-500: #78716c;
+  --color-ink-600: #57534e;
+  --color-ink-700: #292524;   /* primary button */
+  --color-ink-800: #1c1917;
+  --color-ink-900: #0c0a09;   /* hover */
+
+  /* Stone — warm neutral background scale */
+  --color-stone-25:  #ffffff;     /* card surface */
+  --color-stone-50:  #fafaf9;     /* page background */
+  --color-stone-100: #f5f5f4;     /* soft panel */
+  --color-stone-200: #e7e5e4;     /* borders */
+  --color-stone-300: #d6d3d1;     /* strong borders */
+
+  /* Accent — amber, used sparingly on CTAs */
+  --color-accent-50:  #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;   /* hover */
+  --color-accent-600: #d97706;   /* primary CTA */
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
+
+  /* Alias primary-* to ink-* so existing `bg-primary-*` classes work */
+  --color-primary-50:  var(--color-ink-50);
+  --color-primary-100: var(--color-ink-100);
+  --color-primary-200: var(--color-ink-200);
+  --color-primary-300: var(--color-ink-300);
+  --color-primary-400: var(--color-ink-400);
+  --color-primary-500: var(--color-ink-500);
+  --color-primary-600: var(--color-ink-600);
+  --color-primary-700: var(--color-ink-700);
+  --color-primary-800: var(--color-ink-800);
+  --color-primary-900: var(--color-ink-900);
+
+  /* Alias cream-* to stone-* so existing `bg-cream-*` classes work */
+  --color-cream-25:  var(--color-stone-25);
+  --color-cream-50:  var(--color-stone-50);
+  --color-cream-100: var(--color-stone-100);
+  --color-cream-200: var(--color-stone-200);
+  --color-cream-300: var(--color-stone-300);
+
+  /* Remap Tailwind's amber-* to the real amber accent */
+  --color-amber-50:  var(--color-accent-50);
+  --color-amber-100: var(--color-accent-100);
+  --color-amber-200: var(--color-accent-200);
+  --color-amber-300: var(--color-accent-300);
+  --color-amber-400: var(--color-accent-400);
+  --color-amber-500: var(--color-accent-500);
+  --color-amber-600: var(--color-accent-600);
+  --color-amber-700: var(--color-accent-700);
+  --color-amber-800: var(--color-accent-800);
+  --color-amber-900: var(--color-accent-900);
+
   --font-display: 'Playfair Display', serif;
   --font-body: 'DM Sans', sans-serif;
 }
@@ -21,14 +79,23 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    background-color: var(--color-stone-50);
   }
-  
+
   body {
-    background-color: #f9fafb;
-    color: #111827;
+    background-color: var(--color-stone-50);
+    color: var(--color-ink-800);
     font-family: var(--font-body);
     margin: 0;
     padding: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink-900);
   }
 }
 
@@ -41,74 +108,148 @@
     padding-right: 1rem;
     width: 100%;
   }
-  
+
   @media (min-width: 640px) {
     .container-custom {
       padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
-  
+
   @media (min-width: 1024px) {
     .container-custom {
       padding-left: 2rem;
       padding-right: 2rem;
     }
   }
-  
+
+  /* Primary button — dark ink */
   .btn-primary {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    background-image: linear-gradient(to right, #f59e0b, #d97706);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-ink-800);
     color: white;
     font-weight: 600;
+    font-size: 0.875rem;
     border-radius: 0.75rem;
     transition: all 0.15s ease;
     cursor: pointer;
+    border: none;
+    text-decoration: none;
   }
-  
+
   .btn-primary:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    transform: scale(1.02);
+    background-color: var(--color-ink-900);
+    transform: translateY(-1px);
   }
-  
+
   .btn-primary:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.98);
   }
-  
+
   .btn-primary:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Accent button — amber, for the primary CTA */
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-accent-600);
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 0.75rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn-accent:hover {
+    background-color: var(--color-accent-700);
+    transform: translateY(-1px);
+  }
+
+  .btn-accent:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-accent:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Secondary button — outline */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: transparent;
+    color: var(--color-ink-800);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: 1.5px solid var(--color-ink-300);
+    border-radius: 0.75rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-stone-100);
+    border-color: var(--color-ink-700);
+  }
+
+  /* Card surface */
+  .card {
+    background-color: white;
+    border: 1px solid var(--color-stone-200);
+    border-radius: 1rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .card:hover {
+    border-color: var(--color-stone-300);
+  }
+
+  .card-hover:hover {
+    box-shadow: 0 20px 40px -20px rgba(28, 25, 23, 0.15);
+    transform: translateY(-2px);
   }
 }
 
-/* Scrollbar Styles */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #f3f4f6;
+  background-color: var(--color-stone-100);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #f59e0b;
+  background-color: var(--color-ink-300);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #d97706;
+  background-color: var(--color-ink-500);
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -121,4 +262,9 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  .text-primary { color: var(--color-ink-800); }
+  .bg-cream     { background-color: var(--color-stone-50); }
+  .bg-cream-100 { background-color: var(--color-stone-100); }
+  .border-cream { border-color: var(--color-stone-200); }
 }
