@@ -6,8 +6,8 @@ interface LogoProps {
   href?: string;
   showTagline?: boolean;
   className?: string;
+  onClick?: () => void;
 }
-
 export function Logo({
   variant = 'default',
   href = '/',
