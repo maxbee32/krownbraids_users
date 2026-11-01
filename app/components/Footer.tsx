@@ -31,11 +31,11 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative bg-ink-900 text-stone-400 overflow-hidden">
+    <footer className="relative bg-plum-900 text-plum-100/70 overflow-hidden">
       {/* Subtle ambient glow */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
-        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-amber-500 rounded-full blur-3xl" />
-        <div className="absolute -bottom-32 right-1/4 w-80 h-80 bg-stone-500 rounded-full blur-3xl" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.10]">
+        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-rose-brand-500 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 right-1/4 w-80 h-80 bg-plum-400 rounded-full blur-3xl" />
       </div>
 
       <div className="container-custom py-16 relative">
@@ -45,14 +45,14 @@ export default function Footer() {
           <div className="lg:col-span-5">
             <Logo variant="light" className="mb-5" />
 
-            <p className="text-sm leading-relaxed text-stone-400 max-w-sm">
+            <p className="text-sm leading-relaxed text-plum-100/70 max-w-sm">
               The UK marketplace for braiding and beauty salons. Discover
               trusted stylists, book appointments, and preview styles before
               you commit.
             </p>
 
-            <div className="flex items-center gap-2 mt-6 text-xs text-stone-500">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <div className="flex items-center gap-2 mt-6 text-xs text-plum-200/50">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span>Made and hosted in the UK</span>
             </div>
           </div>
@@ -67,7 +67,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center text-stone-400 hover:text-white transition-colors"
+                    className="inline-flex items-center text-plum-100/70 hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -86,7 +86,7 @@ export default function Footer() {
                 <li key={service.label}>
                   <Link
                     href={service.href}
-                    className="inline-flex items-center text-stone-400 hover:text-white transition-colors"
+                    className="inline-flex items-center text-plum-100/70 hover:text-white transition-colors"
                   >
                     {service.label}
                   </Link>
@@ -97,8 +97,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/[0.06] mt-14 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <p className="text-stone-500">
+        <div className="border-t border-white/[0.08] mt-14 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+          <p className="text-plum-200/50">
             © {year} KrownBraids. All rights reserved.
           </p>
 
@@ -107,7 +107,7 @@ export default function Footer() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-stone-500 hover:text-white transition-colors"
+                className="text-plum-200/50 hover:text-white transition-colors"
               >
                 {item.label}
               </Link>

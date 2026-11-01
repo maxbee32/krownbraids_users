@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const BASE =
-  'https://58bb-82-36-98-104.ngrok-free.app';
+  'https://7257-82-36-98-104.ngrok-free.app';
 
 export async function GET(
   request: NextRequest,

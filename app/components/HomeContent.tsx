@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Toaster } from 'react-hot-toast';
 import { Camera, Sparkles, ArrowRight, Search, X, Check } from 'lucide-react';
@@ -11,6 +12,7 @@ import { Salon } from '../../lib/types';
 import FeaturedServices from './FeaturedServices';
 
 export default function HomeContent() {
+  const router = useRouter();
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +50,14 @@ export default function HomeContent() {
     );
   });
 
+  /* ---------------------------------------------------------------- */
+  /*  Search handler — sends the term to /salons as a query param      */
+  /* ---------------------------------------------------------------- */
+  const handleSearchSubmit = () => {
+    const q = searchTerm.trim();
+    router.push(q ? `/salons?q=${encodeURIComponent(q)}` : '/salons');
+  };
+
   return (
     <>
       <Toaster
@@ -55,14 +65,15 @@ export default function HomeContent() {
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#1c1917',
+            background: '#3d352e',
             color: '#fff',
             borderRadius: '12px',
             padding: '14px 16px',
             fontSize: '14px',
+            fontFamily: 'Sora, system-ui, sans-serif',
           },
           success: {
-            iconTheme: { primary: '#d97706', secondary: '#fff' },
+            iconTheme: { primary: '#e11d48', secondary: '#fff' },
           },
           error: {
             iconTheme: { primary: '#ef4444', secondary: '#fff' },
@@ -71,54 +82,106 @@ export default function HomeContent() {
       />
 
       {/* ─────────── HERO ─────────── */}
-      <section className="bg-gradient-to-b from-white to-stone-50 border-b border-stone-200">
-        <div className="container-custom py-16 sm:py-20 md:py-24">
+      <section className="relative bg-cream-50 border-b border-cream-200 overflow-hidden">
+        {/* Soft layered gradients — rose → plum blooms */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          {/* Base wash */}
+          <div className="absolute inset-0 bg-gradient-to-b from-rose-brand-50/50 via-cream-50 to-cream-50" />
+
+          {/* Rose bloom — top */}
+          <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[1200px] h-[1000px] opacity-[0.35]">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-brand-200 via-plum-100 to-transparent blur-3xl" />
+          </div>
+
+          {/* Warm plum wave — middle */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[520px] opacity-[0.18]">
+            <div className="absolute inset-0 rounded-[50%] bg-gradient-to-tr from-plum-300 via-rose-brand-200 to-transparent blur-3xl" />
+          </div>
+
+          {/* Lower warm glow */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[760px] h-[380px] opacity-[0.22]">
+            <div className="absolute inset-0 rounded-[50%] bg-gradient-to-t from-rose-brand-200 to-transparent blur-2xl" />
+          </div>
+
+          {/* Fine dot texture */}
+          <div
+            className="absolute inset-0 opacity-[0.35] mix-blend-soft-light"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 1px 1px, #7a2641 1px, transparent 0)',
+              backgroundSize: '32px 32px',
+            }}
+          />
+        </div>
+
+        {/* Content */}
+        <div className="relative container-custom py-20 sm:py-28 md:py-32">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100 border border-stone-200 text-xs font-medium text-stone-600 tracking-wide uppercase mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-plum-100 text-xs font-semibold text-plum-700 tracking-wide uppercase mb-6 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-brand-500" />
               UK braiding &amp; beauty salons
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-ink-900 leading-[1.1] tracking-tight">
-              Find a salon near you.
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-ink-900 leading-[1.05] tracking-tight">
+              Find a salon
               <br />
-              <span className="text-stone-400">Book in seconds.</span>
+              <span className="bg-gradient-to-r from-plum-700 via-rose-brand-600 to-plum-700 bg-clip-text text-transparent">
+                near you.
+              </span>
             </h1>
 
-            <p className="mt-6 text-base sm:text-lg text-stone-600 max-w-xl mx-auto leading-relaxed">
-              Discover trusted braiding and beauty salons across the UK — search by name,
-              town, or postcode.
+            <p className="mt-6 text-base sm:text-lg text-ink-500 max-w-xl mx-auto leading-relaxed">
+              Discover trusted braiding and beauty salons across the UK —
+              search by name, town, or postcode.
             </p>
 
             {/* Search bar */}
             <div className="mt-10 max-w-xl mx-auto">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 group-focus-within:text-ink-700 transition-colors pointer-events-none" />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400 group-focus-within:text-plum-700 transition-colors pointer-events-none z-10" />
+
                 <input
                   type="text"
                   placeholder="Search salons, towns, or postcodes…"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-12 py-4 bg-white border border-stone-200 rounded-2xl text-ink-900 placeholder-stone-400 shadow-sm focus:border-ink-700 focus:ring-4 focus:ring-ink-700/5 transition-all outline-none text-sm sm:text-base"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSearchSubmit();
+                    }
+                  }}
+                  className="w-full pl-14 pr-32 py-5 bg-white border border-cream-200 rounded-2xl text-ink-900 placeholder-ink-400 shadow-[0_8px_28px_-10px_rgba(122,38,65,0.18)] focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm sm:text-base"
                 />
+
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-stone-100 rounded-full transition-colors"
+                    className="absolute right-[110px] top-1/2 -translate-y-1/2 p-1.5 hover:bg-cream-100 rounded-full transition-colors z-10"
                     aria-label="Clear search"
                   >
-                    <X className="w-4 h-4 text-stone-500" />
+                    <X className="w-4 h-4 text-ink-500" />
                   </button>
                 )}
+
+                <button
+                  onClick={handleSearchSubmit}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800 transition-colors shadow-sm z-10"
+                >
+                  Search
+                </button>
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
-                <span className="text-stone-500">Popular:</span>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
+                <span className="text-ink-500">Popular:</span>
                 {['Braids', 'Knotless', 'London', 'Manchester'].map((tag) => (
                   <button
                     key={tag}
-                    onClick={() => setSearchTerm(tag)}
-                    className="px-3 py-1 rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-ink-800 transition-colors"
+                    onClick={() => {
+                      setSearchTerm(tag);
+                      router.push(`/salons?q=${encodeURIComponent(tag)}`);
+                    }}
+                    className="px-3 py-1 rounded-full bg-white border border-cream-200 text-ink-600 hover:bg-plum-50 hover:text-plum-700 hover:border-plum-200 transition-colors shadow-sm"
                   >
                     {tag}
                   </button>
@@ -129,20 +192,19 @@ export default function HomeContent() {
         </div>
       </section>
 
-    <FeaturedServices />
-
+      <FeaturedServices />
 
       {/* ─────────── SALONS ─────────── */}
       <section className="container-custom py-12 sm:py-16">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-xs font-semibold tracking-[0.15em] text-amber-700 uppercase mb-2">
+            <p className="text-xs font-semibold tracking-[0.15em] text-rose-brand-600 uppercase mb-2">
               {searchTerm ? 'Results' : 'Discover'}
             </p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold text-ink-900">
               {searchTerm ? 'Search results' : 'Featured salons'}
             </h2>
-            <p className="text-sm text-stone-600 mt-2">
+            <p className="text-sm text-ink-500 mt-2">
               {loading
                 ? 'Loading salons…'
                 : `${filteredSalons.length} ${
@@ -154,7 +216,7 @@ export default function HomeContent() {
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-ink-700 hover:text-ink-900 font-medium transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors"
             >
               Clear search
             </button>
@@ -163,18 +225,18 @@ export default function HomeContent() {
 
         {loading ? (
           <div className="text-center py-20">
-            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-stone-200 border-t-ink-800 mx-auto" />
-            <p className="text-stone-500 mt-4 text-sm">Loading salons…</p>
+            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-cream-200 border-t-plum-700 mx-auto" />
+            <p className="text-ink-500 mt-4 text-sm">Loading salons…</p>
           </div>
         ) : filteredSalons.length === 0 ? (
           <div className="text-center py-24 px-4">
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-stone-100 border border-stone-200 flex items-center justify-center">
-              <Search className="w-7 h-7 text-stone-400" />
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-plum-50 border border-plum-100 flex items-center justify-center">
+              <Search className="w-7 h-7 text-plum-400" />
             </div>
             <h3 className="text-xl font-display font-semibold text-ink-900">
               {searchTerm ? 'No salons found' : 'No salons yet'}
             </h3>
-            <p className="text-stone-600 mt-2 max-w-sm mx-auto text-sm">
+            <p className="text-ink-500 mt-2 max-w-sm mx-auto text-sm">
               {searchTerm
                 ? 'Try a different name, town, or postcode.'
                 : 'Check back soon — new salons are joining every week.'}
@@ -191,10 +253,10 @@ export default function HomeContent() {
 
       {/* ─────────── TRY-ON BANNER ─────────── */}
       <section className="container-custom pb-12">
-        <div className="relative overflow-hidden rounded-3xl bg-ink-900 text-white">
-          <div className="absolute inset-0 opacity-20 pointer-events-none">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-            <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-stone-700 rounded-full blur-3xl translate-y-1/2" />
+        <div className="relative overflow-hidden rounded-3xl bg-plum-900 text-white">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-rose-brand-500 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-plum-400 rounded-full blur-3xl translate-y-1/2" />
           </div>
 
           <div
@@ -214,23 +276,23 @@ export default function HomeContent() {
                 Photo preview
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-display font-bold leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-display font-bold leading-tight text-white">
                 Try styles on
                 <br />
-                <span className="text-amber-400">before you book.</span>
+                <span className="text-rose-brand-300">before you book.</span>
               </h2>
 
-              <p className="mt-4 text-stone-300 max-w-md leading-relaxed">
-                Upload a photo and see how different braiding styles look on you —
-                no guessing, no disappointment.
+              <p className="mt-4 text-plum-100/80 max-w-md leading-relaxed">
+                Upload a photo and see how different braiding styles look on
+                you — no guessing, no disappointment.
               </p>
 
               <div className="mt-8">
                 <button
                   onClick={() => setShowAITryOn(true)}
-                  className="group inline-flex items-center gap-2 px-6 py-3.5 bg-white text-ink-900 font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm"
+                  className="group inline-flex items-center gap-2 px-6 py-3.5 bg-white text-plum-900 font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm"
                 >
-                  <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                  <Sparkles className="w-4 h-4 text-rose-brand-500 group-hover:rotate-12 transition-transform" />
                   Try it now
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
@@ -239,7 +301,6 @@ export default function HomeContent() {
 
             {/* Right — real image + result badge */}
             <div className="md:col-span-2 hidden md:block relative">
-              {/* Real photo — tilted slightly for a candid feel */}
               <div className="relative w-full max-w-[280px] mx-auto aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl rotate-2 border-4 border-white/10">
                 <Image
                   src="/assets/img/Braided Beauty Salon Selfie.png"
@@ -250,13 +311,12 @@ export default function HomeContent() {
                 />
               </div>
 
-              {/* Result badge — floating over the bottom-left corner */}
               <div className="absolute -bottom-4 -left-2 bg-white rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
                   <Check className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div className="leading-tight">
-                  <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wide">
+                  <p className="text-[10px] text-ink-500 font-medium uppercase tracking-wide">
                     Match found
                   </p>
                   <p className="text-xs font-semibold text-ink-900">
@@ -265,8 +325,7 @@ export default function HomeContent() {
                 </div>
               </div>
 
-              {/* Small sparkle accent */}
-              <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-amber-400" />
+              <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-rose-brand-300" />
             </div>
           </div>
         </div>
@@ -275,17 +334,17 @@ export default function HomeContent() {
       <MarketplaceSection />
 
       {showAITryOn && (
-  <div
-    className="fixed inset-0 z-50 flex items-start justify-center p-0 sm:p-6 bg-ink-900/70 backdrop-blur-md overflow-y-auto animate-fadeIn"
-    onClick={(e) => {
-      if (e.target === e.currentTarget) setShowAITryOn(false);
-    }}
-  >
-    <div className="w-full max-w-5xl my-0 sm:my-6 animate-slideUp">
-      <AITryOn onClose={() => setShowAITryOn(false)} />
-    </div>
-  </div>
-)}
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center p-0 sm:p-6 bg-plum-900/70 backdrop-blur-md overflow-y-auto animate-fadeIn"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAITryOn(false);
+          }}
+        >
+          <div className="w-full max-w-5xl my-0 sm:my-6 animate-slideUp">
+            <AITryOn onClose={() => setShowAITryOn(false)} />
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes slideUp {

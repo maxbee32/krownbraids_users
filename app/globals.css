@@ -1,100 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
   /* ─────────────────────────────────────────────────────────────
-     Professional palette
-     - Ink:      near-black, used for text + primary buttons
-     - Stone:    warm neutrals for backgrounds, borders
-     - Accent:   amber, used only for the primary CTA
+     Palette: warm rose + plum + soft cream
+     - Plum:   deep, sophisticated primary (buttons, headings)
+     - Rose:   feminine accent (CTAs, highlights)
+     - Cream:  warm neutral backgrounds
      ───────────────────────────────────────────────────────────── */
 
-  /* Ink — near-black scale for text, buttons, icons */
-  --color-ink-50:  #fafaf9;
-  --color-ink-100: #f5f5f4;
-  --color-ink-200: #e7e5e4;
-  --color-ink-300: #d6d3d1;
-  --color-ink-400: #a8a29e;
-  --color-ink-500: #78716c;
-  --color-ink-600: #57534e;
-  --color-ink-700: #292524;   /* primary button */
-  --color-ink-800: #1c1917;
-  --color-ink-900: #0c0a09;   /* hover */
+  /* Plum — deep, elegant primary scale */
+  --color-plum-50:  #fdf4f7;
+  --color-plum-100: #fbe8ef;
+  --color-plum-200: #f5d0dd;
+  --color-plum-300: #ecaabc;
+  --color-plum-400: #de7d99;
+  --color-plum-500: #cc5578;
+  --color-plum-600: #b33a5f;
+  --color-plum-700: #962c4d;   /* primary button */
+  --color-plum-800: #7a2641;
+  --color-plum-900: #5c1d32;
 
-  /* Stone — warm neutral background scale */
-  --color-stone-25:  #ffffff;     /* card surface */
-  --color-stone-50:  #fafaf9;     /* page background */
-  --color-stone-100: #f5f5f4;     /* soft panel */
-  --color-stone-200: #e7e5e4;     /* borders */
-  --color-stone-300: #d6d3d1;     /* strong borders */
+  /* Rose — warm accent for CTAs */
+  --color-rose-brand-50:  #fff1f4;
+  --color-rose-brand-100: #ffe0e7;
+  --color-rose-brand-200: #ffc7d4;
+  --color-rose-brand-300: #ffa0b5;
+  --color-rose-brand-400: #ff6b8f;
+  --color-rose-brand-500: #f43f6a;   /* hover */
+  --color-rose-brand-600: #e11d48;   /* primary CTA */
+  --color-rose-brand-700: #be123c;
+  --color-rose-brand-800: #9f1239;
+  --color-rose-brand-900: #881337;
 
-  /* Accent — amber, used sparingly on CTAs */
-  --color-accent-50:  #fffbeb;
-  --color-accent-100: #fef3c7;
-  --color-accent-200: #fde68a;
-  --color-accent-300: #fcd34d;
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #f59e0b;   /* hover */
-  --color-accent-600: #d97706;   /* primary CTA */
-  --color-accent-700: #b45309;
-  --color-accent-800: #92400e;
-  --color-accent-900: #78350f;
+  /* Cream — warm neutral backgrounds */
+  --color-cream-25:  #fffefb;
+  --color-cream-50:  #fdf9f3;
+  --color-cream-100: #faf3e8;
+  --color-cream-200: #f2e8d8;
+  --color-cream-300: #e8d9c3;
 
-  /* Alias primary-* to ink-* so existing `bg-primary-*` classes work */
-  --color-primary-50:  var(--color-ink-50);
-  --color-primary-100: var(--color-ink-100);
-  --color-primary-200: var(--color-ink-200);
-  --color-primary-300: var(--color-ink-300);
-  --color-primary-400: var(--color-ink-400);
-  --color-primary-500: var(--color-ink-500);
-  --color-primary-600: var(--color-ink-600);
-  --color-primary-700: var(--color-ink-700);
-  --color-primary-800: var(--color-ink-800);
-  --color-primary-900: var(--color-ink-900);
+  /* Ink — warm charcoal for text */
+  --color-ink-50:  #faf8f6;
+  --color-ink-100: #f2eeea;
+  --color-ink-200: #e4ddd6;
+  --color-ink-300: #cfc4ba;
+  --color-ink-400: #a89a8c;
+  --color-ink-500: #7d6f61;
+  --color-ink-600: #5a4f44;
+  --color-ink-700: #3d352e;
+  --color-ink-800: #2a2420;
+  --color-ink-900: #1a1512;
 
-  /* Alias cream-* to stone-* so existing `bg-cream-*` classes work */
-  --color-cream-25:  var(--color-stone-25);
-  --color-cream-50:  var(--color-stone-50);
-  --color-cream-100: var(--color-stone-100);
-  --color-cream-200: var(--color-stone-200);
-  --color-cream-300: var(--color-stone-300);
+  /* Alias primary-* to plum-* for backward compat */
+  --color-primary-50:  var(--color-plum-50);
+  --color-primary-100: var(--color-plum-100);
+  --color-primary-200: var(--color-plum-200);
+  --color-primary-300: var(--color-plum-300);
+  --color-primary-400: var(--color-plum-400);
+  --color-primary-500: var(--color-plum-500);
+  --color-primary-600: var(--color-plum-600);
+  --color-primary-700: var(--color-plum-700);
+  --color-primary-800: var(--color-plum-800);
+  --color-primary-900: var(--color-plum-900);
 
-  /* Remap Tailwind's amber-* to the real amber accent */
-  --color-amber-50:  var(--color-accent-50);
-  --color-amber-100: var(--color-accent-100);
-  --color-amber-200: var(--color-accent-200);
-  --color-amber-300: var(--color-accent-300);
-  --color-amber-400: var(--color-accent-400);
-  --color-amber-500: var(--color-accent-500);
-  --color-amber-600: var(--color-accent-600);
-  --color-amber-700: var(--color-accent-700);
-  --color-amber-800: var(--color-accent-800);
-  --color-amber-900: var(--color-accent-900);
+  /* Remap amber-* to rose accent so existing markup works */
+  --color-amber-50:  var(--color-rose-brand-50);
+  --color-amber-100: var(--color-rose-brand-100);
+  --color-amber-200: var(--color-rose-brand-200);
+  --color-amber-300: var(--color-rose-brand-300);
+  --color-amber-400: var(--color-rose-brand-400);
+  --color-amber-500: var(--color-rose-brand-500);
+  --color-amber-600: var(--color-rose-brand-600);
+  --color-amber-700: var(--color-rose-brand-700);
+  --color-amber-800: var(--color-rose-brand-800);
+  --color-amber-900: var(--color-rose-brand-900);
 
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'DM Sans', sans-serif;
+  /* Remap stone-* to cream so bg-stone-50 etc. become warm cream */
+  --color-stone-50:  var(--color-cream-50);
+  --color-stone-100: var(--color-cream-100);
+  --color-stone-200: var(--color-cream-200);
+  --color-stone-300: var(--color-cream-300);
+
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body: 'Sora', system-ui, sans-serif;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-stone-50);
+    background-color: var(--color-cream-50);
   }
 
   body {
-    background-color: var(--color-stone-50);
+    background-color: var(--color-cream-50);
     color: var(--color-ink-800);
     font-family: var(--font-body);
     margin: 0;
     padding: 0;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss01', 'cv11';
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    font-weight: 700;
   }
 }
 
@@ -122,13 +135,13 @@
     }
   }
 
-  /* Primary button — dark ink */
+  /* Primary button — deep plum */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
-    background-color: var(--color-ink-800);
+    background-color: var(--color-plum-700);
     color: white;
     font-weight: 600;
     font-size: 0.875rem;
@@ -140,7 +153,7 @@
   }
 
   .btn-primary:hover {
-    background-color: var(--color-ink-900);
+    background-color: var(--color-plum-800);
     transform: translateY(-1px);
   }
 
@@ -154,13 +167,13 @@
     transform: none;
   }
 
-  /* Accent button — amber, for the primary CTA */
+  /* Accent button — rose */
   .btn-accent {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
-    background-color: var(--color-accent-600);
+    background-color: var(--color-rose-brand-600);
     color: white;
     font-weight: 600;
     font-size: 0.875rem;
@@ -172,7 +185,7 @@
   }
 
   .btn-accent:hover {
-    background-color: var(--color-accent-700);
+    background-color: var(--color-rose-brand-700);
     transform: translateY(-1px);
   }
 
@@ -186,17 +199,17 @@
     transform: none;
   }
 
-  /* Secondary button — outline */
+  /* Secondary button */
   .btn-secondary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
     background-color: transparent;
-    color: var(--color-ink-800);
+    color: var(--color-plum-700);
     font-weight: 600;
     font-size: 0.875rem;
-    border: 1.5px solid var(--color-ink-300);
+    border: 1.5px solid var(--color-plum-200);
     border-radius: 0.75rem;
     transition: all 0.15s ease;
     cursor: pointer;
@@ -204,24 +217,23 @@
   }
 
   .btn-secondary:hover {
-    background-color: var(--color-stone-100);
-    border-color: var(--color-ink-700);
+    background-color: var(--color-plum-50);
+    border-color: var(--color-plum-400);
   }
 
-  /* Card surface */
   .card {
     background-color: white;
-    border: 1px solid var(--color-stone-200);
+    border: 1px solid var(--color-cream-200);
     border-radius: 1rem;
     transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   }
 
   .card:hover {
-    border-color: var(--color-stone-300);
+    border-color: var(--color-cream-300);
   }
 
   .card-hover:hover {
-    box-shadow: 0 20px 40px -20px rgba(28, 25, 23, 0.15);
+    box-shadow: 0 20px 40px -20px rgba(122, 38, 65, 0.15);
     transform: translateY(-2px);
   }
 }
@@ -233,16 +245,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background-color: var(--color-stone-100);
+  background-color: var(--color-cream-100);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-300);
+  background-color: var(--color-plum-200);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-ink-500);
+  background-color: var(--color-plum-400);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -262,8 +274,8 @@
     overflow: hidden;
   }
 
-  .text-primary { color: var(--color-ink-800); }
-  .bg-cream     { background-color: var(--color-stone-50); }
-  .bg-cream-100 { background-color: var(--color-stone-100); }
-  .border-cream { border-color: var(--color-stone-200); }
+  .text-primary { color: var(--color-plum-700); }
+  .bg-cream     { background-color: var(--color-cream-50); }
+  .bg-cream-100 { background-color: var(--color-cream-100); }
+  .border-cream { border-color: var(--color-cream-200); }
 }

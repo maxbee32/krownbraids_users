@@ -1,9 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Calendar, Clock, User, Phone, Mail, MessageSquare } from 'lucide-react';
+import Image from 'next/image';
+import {
+  X,
+  Calendar,
+  Clock,
+  User,
+  Phone,
+  Mail,
+  MessageSquare,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Style, BookingFormData } from '../types';
+import { resolveImageUrl } from '../../lib/imageUrl';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -11,7 +21,11 @@ interface BookingModalProps {
   style: Style;
 }
 
-export default function BookingModal({ isOpen, onClose, style }: BookingModalProps) {
+export default function BookingModal({
+  isOpen,
+  onClose,
+  style,
+}: BookingModalProps) {
   const [formData, setFormData] = useState<BookingFormData>({
     name: '',
     email: '',
@@ -23,6 +37,8 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  const thumbnailSrc = resolveImageUrl(style.image);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -31,56 +47,72 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
 
     // Simulate API call
     setTimeout(() => {
-      toast.success(`✅ Booked ${style.name} successfully! We'll contact you shortly.`);
+      toast.success(
+        `✅ Booked ${style.name} successfully! We'll contact you shortly.`
+      );
       setIsSubmitting(false);
       onClose();
-      setFormData({ name: '', email: '', phone: '', date: '', time: '', notes: '' });
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        date: '',
+        time: '',
+        notes: '',
+      });
     }, 1500);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const inputClass =
-    'w-full pl-10 pr-3 py-2.5 bg-white border border-cream-300 rounded-xl text-gray-900 placeholder-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all outline-none';
-  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
-  const iconClass = 'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400';
+    'w-full pl-10 pr-3 py-2.5 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none';
+  const labelClass = 'block text-sm font-medium text-ink-700 mb-1.5';
+  const iconClass =
+    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-md">
-      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_-15px_rgba(109,67,38,0.3)] border border-cream-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-plum-900/55 backdrop-blur-md">
+      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_-15px_rgba(122,38,65,0.35)] border border-cream-200">
         {/* Header */}
         <div className="sticky top-0 bg-white/95 backdrop-blur-md rounded-t-3xl border-b border-cream-200 p-6 flex items-start justify-between z-10">
           <div className="flex items-start gap-4">
-            {/* Style thumbnail — acts as a visual anchor */}
-            {style.image && (
+            {/* Style thumbnail — visual anchor */}
+            {thumbnailSrc && (
               <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-cream-100 border border-cream-200 flex-shrink-0 hidden sm:block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={style.image}
+                <Image
+                  src={thumbnailSrc}
                   alt={style.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="56px"
+                  unoptimized // remove in production
                 />
               </div>
             )}
             <div>
-              <h2 className="text-2xl font-display font-bold text-gray-900">
+              <h2 className="text-2xl font-display font-bold text-ink-900">
                 Book Appointment
               </h2>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-ink-500 mt-0.5">
                 {style.name}
                 <span className="mx-2 text-cream-300">•</span>
-                <span className="text-amber-700 font-semibold">£{style.price}</span>
+                <span className="text-plum-700 font-semibold">
+                  £{style.price}
+                </span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-cream-100 rounded-xl transition-colors"
+            className="p-2 hover:bg-plum-50 rounded-xl transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-ink-500" />
           </button>
         </div>
 
@@ -147,7 +179,7 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
                   required
                   value={formData.date}
                   onChange={handleChange}
-                  className={inputClass}
+                  className={`${inputClass} [color-scheme:light]`}
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
@@ -163,7 +195,7 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
                   required
                   value={formData.time}
                   onChange={handleChange}
-                  className={inputClass}
+                  className={`${inputClass} [color-scheme:light]`}
                 />
               </div>
             </div>
@@ -172,13 +204,13 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
           <div>
             <label className={labelClass}>Special Notes</label>
             <div className="relative">
-              <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+              <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-ink-400" />
               <textarea
                 name="notes"
                 rows={3}
                 value={formData.notes}
                 onChange={handleChange}
-                className={`${inputClass} resize-none`}
+                className={`${inputClass} resize-none pt-3`}
                 placeholder="Any special requests or questions…"
               />
             </div>
@@ -188,7 +220,7 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-2xl transition-all hover:shadow-lg hover:shadow-amber-600/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -199,7 +231,7 @@ export default function BookingModal({ isOpen, onClose, style }: BookingModalPro
                 'Confirm Booking'
               )}
             </button>
-            <p className="text-xs text-gray-400 text-center mt-3">
+            <p className="text-xs text-ink-400 text-center mt-3">
               You&apos;ll receive a confirmation email with appointment details
             </p>
           </div>

@@ -1,9 +1,18 @@
 import type { Metadata } from 'next';
+import { Sora } from 'next/font/google';
 import './globals.css';
 
+const sora = Sora({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-sora',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  title: 'KROWN BRAIDS - Book Your Perfect Hairstyle',
-  description: 'Premium braiding services. Book your appointment today.',
+  title: 'KROWN BRAIDS — Book Your Perfect Hairstyle',
+  description:
+    'Premium braiding & beauty salons across the UK. Discover trusted stylists and book your appointment today.',
 };
 
 export default function RootLayout({
@@ -12,12 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body>{children}</body>
+    <html lang="en" className={sora.variable}>
+      <body className="font-body">{children}</body>
     </html>
   );
 }

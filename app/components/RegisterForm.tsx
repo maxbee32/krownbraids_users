@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   User,
@@ -17,6 +17,9 @@ import toast from 'react-hot-toast';
 
 export default function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '';
+  const reason = searchParams.get('reason') || '';
 
   const [form, setForm] = useState({
     firstName: '',
@@ -98,7 +101,13 @@ export default function RegisterForm() {
         'Account created. Check your email for the verification code.'
       );
 
-      router.push(`/verify-otp?email=${encodeURIComponent(form.email)}`);
+      // Preserve redirect + reason through the OTP step
+      const params = new URLSearchParams();
+      params.set('email', form.email);
+      if (redirectTo) params.set('redirect', redirectTo);
+      if (reason) params.set('reason', reason);
+
+      router.push(`/verify-otp?${params.toString()}`);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Registration failed';
@@ -110,10 +119,18 @@ export default function RegisterForm() {
   };
 
   const inputClass =
-    'w-full pl-11 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-ink-900 placeholder-stone-400 focus:border-ink-700 focus:ring-4 focus:ring-ink-700/5 transition-all outline-none text-sm';
+    'w-full pl-11 pr-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm';
   const labelClass = 'block text-sm font-medium text-ink-900 mb-1.5';
   const iconClass =
-    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400';
+    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400';
+
+  // Login link — preserves redirect + reason
+  const loginParams = new URLSearchParams();
+  if (redirectTo) loginParams.set('redirect', redirectTo);
+  if (reason) loginParams.set('reason', reason);
+  const loginHref = loginParams.toString()
+    ? `/login?${loginParams.toString()}`
+    : '/login';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -222,7 +239,7 @@ export default function RegisterForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-plum-700 transition-colors"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
@@ -255,7 +272,7 @@ export default function RegisterForm() {
           <button
             type="button"
             onClick={() => setShowConfirm((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-plum-700 transition-colors"
             aria-label={showConfirm ? 'Hide password' : 'Show password'}
           >
             {showConfirm ? (
@@ -279,7 +296,7 @@ export default function RegisterForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3.5 bg-ink-900 text-white font-semibold rounded-2xl transition-all hover:bg-ink-800 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
       >
         {submitting ? (
           <>
@@ -291,11 +308,11 @@ export default function RegisterForm() {
         )}
       </button>
 
-      <p className="text-xs text-stone-600 text-center">
+      <p className="text-xs text-ink-500 text-center">
         Already have an account?{' '}
         <Link
-          href="/login"
-          className="text-ink-900 hover:text-ink-700 font-semibold transition-colors"
+          href={loginHref}
+          className="text-plum-700 hover:text-plum-800 font-semibold transition-colors"
         >
           Sign in
         </Link>

@@ -1,18 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '';
 
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +27,18 @@ export default function LoginForm() {
       return 'Enter a valid email';
     if (!form.password) return 'Password is required';
     return null;
+  };
+
+  /**
+   * Build the destination URL after successful login.
+   * Preserves any existing query params on `redirectTo` and appends
+   * `welcome=1` so the destination can show a welcome-back banner.
+   */
+  const buildRedirectUrl = (base: string): string => {
+    const sep = base.includes('?') ? '&' : '?';
+    // Don't double-append if already present (defensive)
+    if (/[?&]welcome=1(&|$)/.test(base)) return base;
+    return `${base}${sep}welcome=1`;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,6 +87,12 @@ export default function LoginForm() {
 
       toast.success('Signed in successfully.');
 
+      // Priority: explicit redirect from query → admin → home
+      if (redirectTo) {
+        router.push(buildRedirectUrl(redirectTo));
+        return;
+      }
+
       const role = (data.role ?? '').toString().toUpperCase();
       if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
         router.push('/admin');
@@ -92,14 +109,13 @@ export default function LoginForm() {
   };
 
   const inputClass =
-    'w-full pl-11 pr-4 py-3 bg-white border border-stone-200 rounded-xl text-ink-900 placeholder-stone-400 focus:border-ink-700 focus:ring-4 focus:ring-ink-700/5 transition-all outline-none text-sm';
+    'w-full pl-11 pr-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm';
   const labelClass = 'block text-sm font-medium text-ink-900 mb-1.5';
   const iconClass =
-    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400';
+    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Email */}
       <div>
         <label htmlFor="email" className={labelClass}>
           Email *
@@ -120,7 +136,6 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* Password */}
       <div>
         <label htmlFor="password" className={labelClass}>
           Password *
@@ -141,29 +156,23 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-plum-700 transition-colors"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
-            {showPassword ? (
-              <EyeOff className="w-4 h-4" />
-            ) : (
-              <Eye className="w-4 h-4" />
-            )}
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Forgot password link */}
       <div className="flex justify-end -mt-2">
         <Link
           href="/forgot-password"
-          className="text-xs text-ink-700 hover:text-ink-900 font-medium transition-colors"
+          className="text-xs text-plum-700 hover:text-plum-800 font-medium transition-colors"
         >
           Forgot password?
         </Link>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
           <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
@@ -171,11 +180,10 @@ export default function LoginForm() {
         </div>
       )}
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3.5 bg-ink-900 text-white font-semibold rounded-2xl transition-all hover:bg-ink-800 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
       >
         {submitting ? (
           <>

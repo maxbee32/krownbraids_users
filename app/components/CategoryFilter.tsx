@@ -53,9 +53,9 @@ export default function CategoryFilter({
   const pillBase =
     'flex-shrink-0 px-5 py-2.5 rounded-full whitespace-nowrap transition-all duration-200 font-medium text-sm border';
   const pillActive =
-    'bg-gradient-to-r from-amber-500 to-amber-600 text-white border-transparent shadow-md shadow-amber-600/25';
+    'bg-plum-700 text-white border-transparent shadow-md shadow-plum-700/25';
   const pillIdle =
-    'bg-cream-100 text-gray-700 border-cream-200 hover:bg-cream-200 hover:border-cream-300';
+    'bg-white text-ink-700 border-cream-200 hover:bg-plum-50 hover:text-plum-700 hover:border-plum-200';
 
   return (
     <div className="border-b border-cream-200 bg-cream-50">
@@ -77,11 +77,11 @@ export default function CategoryFilter({
           <button
             onClick={() => scroll('left')}
             aria-label="Scroll categories left"
-            className={`absolute left-1 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-cream-200 shadow-md rounded-full hover:bg-cream-100 hover:scale-105 active:scale-95 transition-all md:hidden ${
+            className={`absolute left-1 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-cream-200 shadow-md rounded-full hover:bg-plum-50 hover:border-plum-200 hover:scale-105 active:scale-95 transition-all md:hidden ${
               canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
-            <ChevronLeft className="w-4 h-4 text-gray-700" />
+            <ChevronLeft className="w-4 h-4 text-plum-700" />
           </button>
 
           {/* Categories */}
@@ -97,7 +97,7 @@ export default function CategoryFilter({
               All Styles
               <span
                 className={`ml-2 text-xs ${
-                  !selected ? 'text-white/85' : 'text-gray-500'
+                  !selected ? 'text-white/85' : 'text-ink-500'
                 }`}
               >
                 {totalCount}
@@ -115,7 +115,7 @@ export default function CategoryFilter({
                   {cat.name}
                   <span
                     className={`ml-2 text-xs ${
-                      isActive ? 'text-white/85' : 'text-gray-500'
+                      isActive ? 'text-white/85' : 'text-ink-500'
                     }`}
                   >
                     {cat.count}
@@ -129,11 +129,11 @@ export default function CategoryFilter({
           <button
             onClick={() => scroll('right')}
             aria-label="Scroll categories right"
-            className={`absolute right-1 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-cream-200 shadow-md rounded-full hover:bg-cream-100 hover:scale-105 active:scale-95 transition-all md:hidden ${
+            className={`absolute right-1 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-cream-200 shadow-md rounded-full hover:bg-plum-50 hover:border-plum-200 hover:scale-105 active:scale-95 transition-all md:hidden ${
               canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
-            <ChevronRight className="w-4 h-4 text-gray-700" />
+            <ChevronRight className="w-4 h-4 text-plum-700" />
           </button>
         </div>
       </div>

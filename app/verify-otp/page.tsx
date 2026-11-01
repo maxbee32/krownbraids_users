@@ -14,6 +14,8 @@ function VerifyOtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') ?? '';
+  const redirectTo = searchParams.get('redirect') ?? '';
+  const reason = searchParams.get('reason') ?? '';
 
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [submitting, setSubmitting] = useState(false);
@@ -149,7 +151,17 @@ function VerifyOtpForm() {
 
       setSuccess(true);
       toast.success('Email verified!');
-      setTimeout(() => router.push('/login'), 1500);
+
+      // Build /login URL preserving redirect + reason so the login page
+      // shows the correct banner and returns the user to their destination
+      const params = new URLSearchParams();
+      if (redirectTo) params.set('redirect', redirectTo);
+      if (reason) params.set('reason', reason);
+      const loginUrl = params.toString()
+        ? `/login?${params.toString()}`
+        : '/login';
+
+      setTimeout(() => router.push(loginUrl), 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');
     } finally {
@@ -199,10 +211,10 @@ function VerifyOtpForm() {
         <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
           <CheckCircle2 className="w-8 h-8 text-emerald-500" />
         </div>
-        <h2 className="text-xl font-display font-semibold text-gray-900">
+        <h2 className="text-xl font-display font-semibold text-ink-900">
           Email verified
         </h2>
-        <p className="text-gray-500 mt-2 text-sm">
+        <p className="text-ink-500 mt-2 text-sm">
           Redirecting you to sign in…
         </p>
       </div>
@@ -212,7 +224,7 @@ function VerifyOtpForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+        <label className="block text-sm font-medium text-ink-700 mb-3 text-center">
           Verification code
         </label>
 
@@ -242,14 +254,14 @@ function VerifyOtpForm() {
                 minHeight: '3.5rem',
                 flexShrink: 0,
               }}
-              className="text-center text-2xl font-semibold bg-white border-2 border-cream-300 rounded-2xl text-gray-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-400/15 outline-none transition-all disabled:opacity-60"
+              className="text-center text-2xl font-semibold bg-white border-2 border-cream-300 rounded-2xl text-ink-900 focus:border-plum-500 focus:ring-4 focus:ring-plum-500/15 outline-none transition-all disabled:opacity-60"
             />
           ))}
         </div>
 
         {email && (
-          <p className="text-xs text-gray-500 mt-3 text-center">
-            Sent to <span className="text-gray-700 font-medium">{email}</span>
+          <p className="text-xs text-ink-500 mt-3 text-center">
+            Sent to <span className="text-ink-700 font-medium">{email}</span>
           </p>
         )}
       </div>
@@ -264,7 +276,7 @@ function VerifyOtpForm() {
       <button
         type="submit"
         disabled={submitting || !isComplete}
-        className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-2xl transition-all hover:shadow-lg hover:shadow-amber-600/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
       >
         {submitting ? (
           <>
@@ -281,7 +293,7 @@ function VerifyOtpForm() {
           type="button"
           onClick={handleResend}
           disabled={resending}
-          className="text-sm text-amber-700 hover:text-amber-800 font-medium transition-colors disabled:opacity-60"
+          className="text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors disabled:opacity-60"
         >
           {resending ? 'Sending…' : "Didn't get a code? Resend"}
         </button>
@@ -290,43 +302,83 @@ function VerifyOtpForm() {
   );
 }
 
+function VerifyOtpPageContent() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') ?? '';
+  const reason = searchParams.get('reason') ?? '';
+
+  // Preserve redirect + reason when user goes back to register
+  const registerParams = new URLSearchParams();
+  if (redirectTo) registerParams.set('redirect', redirectTo);
+  if (reason) registerParams.set('reason', reason);
+  const registerHref = registerParams.toString()
+    ? `/register?${registerParams.toString()}`
+    : '/register';
+
+  return (
+    <main className="relative min-h-screen bg-cream-50 py-12 px-4 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] opacity-[0.28]">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-brand-200 via-plum-100 to-transparent blur-3xl" />
+        </div>
+        <div
+          className="absolute inset-0 opacity-[0.3] mix-blend-soft-light"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, #7a2641 1px, transparent 0)',
+            backgroundSize: '32px 32px',
+          }}
+        />
+      </div>
+
+      <div className="relative max-w-md mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-display font-bold text-ink-900">
+            Check your email
+          </h1>
+          <p className="text-ink-500 mt-2">
+            Enter the verification code we sent you.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-[0_12px_40px_-16px_rgba(122,38,65,0.18)] border border-cream-200 p-6 sm:p-8">
+          <Suspense
+            fallback={
+              <div className="text-center py-8 text-ink-500">Loading…</div>
+            }
+          >
+            <VerifyOtpForm />
+          </Suspense>
+        </div>
+
+        <p className="text-xs text-ink-500 text-center mt-6">
+          <Link
+            href={registerHref}
+            className="text-plum-700 hover:text-plum-800 font-medium transition-colors"
+          >
+            Back to registration
+          </Link>
+        </p>
+      </div>
+    </main>
+  );
+}
+
 export default function VerifyOtpPage() {
   return (
     <>
       <Header />
-
-      <main className="min-h-screen bg-cream-50 py-12 px-4">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-display font-bold text-gray-900">
-              Check your email
-            </h1>
-            <p className="text-gray-500 mt-2">
-              Enter the verification code we sent you.
-            </p>
-          </div>
-
-          <div className="bg-cream-25 rounded-3xl shadow-sm border border-cream-200 p-6 sm:p-8">
-            <Suspense
-              fallback={
-                <div className="text-center py-8 text-gray-500">Loading…</div>
-              }
-            >
-              <VerifyOtpForm />
-            </Suspense>
-          </div>
-
-          <p className="text-xs text-gray-500 text-center mt-6">
-            <Link
-              href="/register"
-              className="text-amber-700 hover:text-amber-800 font-medium transition-colors"
-            >
-              Back to registration
-            </Link>
-          </p>
-        </div>
-      </main>
-
+      <Suspense
+        fallback={
+          <main className="relative min-h-screen bg-cream-50 py-12 px-4">
+            <div className="container-custom text-center py-24">
+              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-plum-200 border-t-plum-700 mx-auto" />
+            </div>
+          </main>
+        }
+      >
+        <VerifyOtpPageContent />
+      </Suspense>
       <Footer />
     </>
   );

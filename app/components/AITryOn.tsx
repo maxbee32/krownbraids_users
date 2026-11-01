@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Style } from '../types';
+import { resolveImageUrl } from '../../lib/imageUrl';
 
 interface AITryOnProps {
   selectedStyle?: Style;
@@ -23,11 +24,17 @@ interface AITryOnProps {
   onStyleSelect?: (style: Style) => void;
 }
 
-export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITryOnProps) {
+export default function AITryOn({
+  selectedStyle,
+  onClose,
+  onStyleSelect,
+}: AITryOnProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isComplete, setIsComplete] = useState<boolean>(false);
-  const [selectedStyleForTryOn, setSelectedStyleForTryOn] = useState<Style | undefined>(selectedStyle);
+  const [selectedStyleForTryOn, setSelectedStyleForTryOn] = useState<
+    Style | undefined
+  >(selectedStyle);
   const [activeTab, setActiveTab] = useState<'upload' | 'camera'>('upload');
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -143,7 +150,9 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
             audio: false,
           });
         } catch (defaultError) {
-          throw new Error('Unable to access camera. Please check your camera connection.');
+          throw new Error(
+            'Unable to access camera. Please check your camera connection.'
+          );
         }
       }
 
@@ -178,31 +187,52 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
               setVideoReady(true);
             } catch (retryError) {
               console.error('Retry play error:', retryError);
-              setCameraError('Unable to play video stream. Please try again.');
+              setCameraError(
+                'Unable to play video stream. Please try again.'
+              );
               setIsCameraLoading(false);
             }
           }, 500);
         }
       } else {
-        setCameraError('Video element not found. Please refresh and try again.');
+        setCameraError(
+          'Video element not found. Please refresh and try again.'
+        );
         setIsCameraLoading(false);
       }
     } catch (err: any) {
       console.error('Camera error details:', err);
 
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Camera access denied. Please allow camera access in your browser settings.');
-      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setCameraError('No camera found. Please connect a camera or use the upload option.');
-      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+      if (
+        err.name === 'NotAllowedError' ||
+        err.name === 'PermissionDeniedError'
+      ) {
+        setCameraError(
+          'Camera access denied. Please allow camera access in your browser settings.'
+        );
+      } else if (
+        err.name === 'NotFoundError' ||
+        err.name === 'DevicesNotFoundError'
+      ) {
+        setCameraError(
+          'No camera found. Please connect a camera or use the upload option.'
+        );
+      } else if (
+        err.name === 'NotReadableError' ||
+        err.name === 'TrackStartError'
+      ) {
         setCameraError(
           'Camera is busy or not responding. Please close other apps using the camera and try again.'
         );
       } else if (err.message?.includes('secure origin')) {
-        setCameraError('Camera requires a secure connection (HTTPS). Please use the upload option.');
+        setCameraError(
+          'Camera requires a secure connection (HTTPS). Please use the upload option.'
+        );
       } else {
         setCameraError(
-          `Unable to access camera: ${err.message || 'Unknown error'}. Please use upload instead.`
+          `Unable to access camera: ${
+            err.message || 'Unknown error'
+          }. Please use upload instead.`
         );
       }
 
@@ -296,19 +326,21 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
     }
   };
 
+  const selectedStyleThumb = resolveImageUrl(selectedStyleForTryOn?.image);
+
   return (
-    <div className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-[0_25px_50px_-12px_rgba(28,25,23,0.18)]">
+    <div className="bg-white rounded-3xl border border-cream-200 overflow-hidden shadow-[0_25px_50px_-12px_rgba(122,38,65,0.25)]">
       {/* Header */}
-      <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+      <div className="p-6 border-b border-cream-200 flex items-center justify-between bg-cream-50">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-ink-900 flex items-center justify-center shadow-sm">
+          <div className="w-11 h-11 rounded-2xl bg-plum-700 flex items-center justify-center shadow-sm shadow-plum-700/25">
             <Camera className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className="text-xl font-display font-bold text-ink-900">
               Try On Styles
             </h2>
-            <p className="text-xs text-stone-600">
+            <p className="text-xs text-ink-500">
               Upload or take a photo to try styles
             </p>
           </div>
@@ -319,10 +351,10 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
               stopCamera();
               onClose();
             }}
-            className="p-2 hover:bg-stone-200 rounded-xl transition-colors"
+            className="p-2 hover:bg-plum-50 rounded-xl transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-stone-600" />
+            <X className="w-5 h-5 text-ink-600" />
           </button>
         )}
       </div>
@@ -335,19 +367,19 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
               <h3 className="text-sm font-semibold text-ink-900 mb-1">
                 Your Photo
               </h3>
-              <p className="text-xs text-stone-600">
+              <p className="text-xs text-ink-500">
                 Upload or take a photo for the best results
               </p>
             </div>
 
             {/* Tab Selector */}
-            <div className="flex gap-2 mb-4 p-1 bg-stone-100 rounded-2xl border border-stone-200">
+            <div className="flex gap-2 mb-4 p-1 bg-plum-50 rounded-2xl border border-plum-100">
               <button
                 onClick={() => handleTabChange('upload')}
                 className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'upload'
-                    ? 'bg-ink-900 text-white shadow-sm'
-                    : 'text-stone-600 hover:bg-stone-200/70'
+                    ? 'bg-plum-700 text-white shadow-sm shadow-plum-700/25'
+                    : 'text-plum-700 hover:bg-plum-100'
                 }`}
               >
                 <Upload className="w-4 h-4" />
@@ -357,8 +389,8 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
                 onClick={() => handleTabChange('camera')}
                 className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'camera'
-                    ? 'bg-ink-900 text-white shadow-sm'
-                    : 'text-stone-600 hover:bg-stone-200/70'
+                    ? 'bg-plum-700 text-white shadow-sm shadow-plum-700/25'
+                    : 'text-plum-700 hover:bg-plum-100'
                 }`}
               >
                 <Camera className="w-4 h-4" />
@@ -370,18 +402,18 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
               <div className="relative">
                 {/* Upload State */}
                 {activeTab === 'upload' && (
-                  <label className="w-full py-16 border-2 border-dashed border-stone-300 rounded-2xl hover:border-ink-500 transition-colors bg-stone-50 hover:bg-stone-100 flex flex-col items-center gap-3 cursor-pointer">
-                    <div className="w-16 h-16 rounded-full bg-white border border-stone-200 flex items-center justify-center">
-                      <Upload className="w-7 h-7 text-ink-700" />
+                  <label className="w-full py-16 border-2 border-dashed border-cream-300 rounded-2xl hover:border-plum-400 transition-colors bg-cream-50 hover:bg-plum-50 flex flex-col items-center gap-3 cursor-pointer">
+                    <div className="w-16 h-16 rounded-full bg-white border border-cream-200 flex items-center justify-center">
+                      <Upload className="w-7 h-7 text-plum-700" />
                     </div>
                     <div className="text-center">
                       <p className="font-medium text-ink-900">
                         Upload a photo
                       </p>
-                      <p className="text-xs text-stone-500 mt-1">
+                      <p className="text-xs text-ink-500 mt-1">
                         JPG or PNG, up to 10MB
                       </p>
-                      <p className="text-xs text-amber-700 mt-2 font-semibold">
+                      <p className="text-xs text-plum-700 mt-2 font-semibold">
                         Click to browse files
                       </p>
                     </div>
@@ -416,7 +448,7 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
                       disabled={!videoReady}
                       aria-label="Capture photo"
                     >
-                      <Camera className="w-7 h-7 text-ink-900" />
+                      <Camera className="w-7 h-7 text-plum-700" />
                     </button>
                     <button
                       onClick={stopCamera}
@@ -438,76 +470,87 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
                 </div>
 
                 {/* Loading Spinner */}
-                {activeTab === 'camera' && isCameraLoading && !isCameraActive && (
-                  <div className="text-center py-16 bg-stone-50 rounded-2xl border-2 border-stone-200">
-                    <Loader2 className="w-10 h-10 text-ink-700 animate-spin mx-auto mb-3" />
-                    <p className="text-ink-900 font-medium">
-                      Starting camera…
-                    </p>
-                    <p className="text-xs text-stone-500 mt-1">
-                      Please allow camera access
-                    </p>
-                    <p className="text-xs text-stone-500 mt-2">
-                      Check your browser permissions
-                    </p>
-                  </div>
-                )}
+                {activeTab === 'camera' &&
+                  isCameraLoading &&
+                  !isCameraActive && (
+                    <div className="text-center py-16 bg-cream-50 rounded-2xl border-2 border-cream-200">
+                      <Loader2 className="w-10 h-10 text-plum-700 animate-spin mx-auto mb-3" />
+                      <p className="text-ink-900 font-medium">
+                        Starting camera…
+                      </p>
+                      <p className="text-xs text-ink-500 mt-1">
+                        Please allow camera access
+                      </p>
+                      <p className="text-xs text-ink-500 mt-2">
+                        Check your browser permissions
+                      </p>
+                    </div>
+                  )}
 
                 {/* Error State */}
-                {activeTab === 'camera' && cameraError && !isCameraActive && (
-                  <div className="text-center py-8 px-4 bg-red-50 rounded-2xl border-2 border-red-200">
-                    <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                    <p className="text-red-700 font-medium mb-2">
-                      {cameraError}
-                    </p>
-                    <p className="text-xs text-stone-600 mb-4">
-                      Tips:
-                      <br />• Make sure your camera is connected and not being used by another app
-                      <br />• Allow camera access in your browser settings
-                      <br />• Try refreshing the page
-                    </p>
-                    <div className="flex flex-wrap gap-3 justify-center">
-                      <button
-                        onClick={startCamera}
-                        className="px-6 py-2 bg-ink-900 text-white rounded-xl hover:bg-ink-800 transition-colors flex items-center gap-2"
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                        Try Again
-                      </button>
-                      <button
-                        onClick={() => handleTabChange('upload')}
-                        className="px-6 py-2 bg-white text-ink-800 border border-stone-300 rounded-xl hover:bg-stone-100 transition-colors"
-                      >
-                        Use Upload Instead
-                      </button>
+                {activeTab === 'camera' &&
+                  cameraError &&
+                  !isCameraActive && (
+                    <div className="text-center py-8 px-4 bg-red-50 rounded-2xl border-2 border-red-200">
+                      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                      <p className="text-red-700 font-medium mb-2">
+                        {cameraError}
+                      </p>
+                      <p className="text-xs text-ink-600 mb-4">
+                        Tips:
+                        <br />
+                        • Make sure your camera is connected and not being used
+                        by another app
+                        <br />• Allow camera access in your browser settings
+                        <br />• Try refreshing the page
+                      </p>
+                      <div className="flex flex-wrap gap-3 justify-center">
+                        <button
+                          onClick={startCamera}
+                          className="px-6 py-2 bg-plum-700 text-white rounded-xl hover:bg-plum-800 transition-colors flex items-center gap-2"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Try Again
+                        </button>
+                        <button
+                          onClick={() => handleTabChange('upload')}
+                          className="px-6 py-2 bg-white text-plum-700 border border-plum-200 rounded-xl hover:bg-plum-50 transition-colors"
+                        >
+                          Use Upload Instead
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Start Camera Button */}
-                {activeTab === 'camera' && !isCameraLoading && !isCameraActive && !cameraError && (
-                  <button
-                    onClick={startCamera}
-                    className="w-full py-16 border-2 border-dashed border-stone-300 rounded-2xl hover:border-ink-500 transition-colors bg-stone-50 hover:bg-stone-100 flex flex-col items-center gap-3"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-white border border-stone-200 flex items-center justify-center">
-                      <Camera className="w-7 h-7 text-ink-700" />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-medium text-ink-900">Start Camera</p>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Take a selfie
-                      </p>
-                      <p className="text-xs text-amber-700 mt-2 font-semibold">
-                        Click to access your camera
-                      </p>
-                    </div>
-                  </button>
-                )}
+                {activeTab === 'camera' &&
+                  !isCameraLoading &&
+                  !isCameraActive &&
+                  !cameraError && (
+                    <button
+                      onClick={startCamera}
+                      className="w-full py-16 border-2 border-dashed border-cream-300 rounded-2xl hover:border-plum-400 transition-colors bg-cream-50 hover:bg-plum-50 flex flex-col items-center gap-3"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-white border border-cream-200 flex items-center justify-center">
+                        <Camera className="w-7 h-7 text-plum-700" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-medium text-ink-900">
+                          Start Camera
+                        </p>
+                        <p className="text-xs text-ink-500 mt-1">
+                          Take a selfie
+                        </p>
+                        <p className="text-xs text-plum-700 mt-2 font-semibold">
+                          Click to access your camera
+                        </p>
+                      </div>
+                    </button>
+                  )}
               </div>
             ) : (
               // Image Preview
-              <div className="relative rounded-2xl overflow-hidden bg-stone-100 border border-stone-200">
+              <div className="relative rounded-2xl overflow-hidden bg-cream-100 border border-cream-200">
                 <div className="relative aspect-[3/4]">
                   <Image
                     src={selectedImage}
@@ -516,7 +559,7 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
                     className="object-cover"
                   />
                   {isComplete && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-plum-900/55 via-transparent to-transparent" />
                   )}
                 </div>
 
@@ -526,7 +569,7 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
                     className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white shadow-lg transition-all hover:scale-110"
                     aria-label="Reset photo"
                   >
-                    <RotateCcw className="w-5 h-5 text-stone-700" />
+                    <RotateCcw className="w-5 h-5 text-plum-700" />
                   </button>
                 </div>
 
@@ -546,47 +589,54 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
               <h3 className="text-sm font-semibold text-ink-900 mb-1">
                 Select a Style
               </h3>
-              <p className="text-xs text-stone-600">
+              <p className="text-xs text-ink-500">
                 Choose a hairstyle to try on
               </p>
             </div>
 
             {/* Selected style preview */}
-            <div className="bg-stone-50 rounded-2xl p-4 mb-4 border border-stone-200">
+            <div className="bg-cream-50 rounded-2xl p-4 mb-4 border border-cream-200">
               {selectedStyleForTryOn ? (
                 <div className="flex items-center gap-4">
-                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-stone-200 flex-shrink-0">
-                    <Image
-                      src={selectedStyleForTryOn.image}
-                      alt={selectedStyleForTryOn.name}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-cream-200 flex-shrink-0">
+                    {selectedStyleThumb ? (
+                      <Image
+                        src={selectedStyleThumb}
+                        alt={selectedStyleForTryOn.name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-plum-300">
+                        <ImageIcon className="w-8 h-8" />
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-ink-900 truncate text-base">
                       {selectedStyleForTryOn.name}
                     </p>
-                    <p className="text-xs text-stone-600 mt-0.5">
+                    <p className="text-xs text-ink-500 mt-0.5">
                       {selectedStyleForTryOn.category}
                     </p>
-                    <p className="text-base font-bold text-amber-700 mt-1">
+                    <p className="text-base font-bold text-plum-700 mt-1">
                       £{selectedStyleForTryOn.price}
                     </p>
                   </div>
                   <button
                     onClick={() => setSelectedStyleForTryOn(undefined)}
-                    className="self-start p-1.5 hover:bg-stone-200 rounded-lg transition-colors"
+                    className="self-start p-1.5 hover:bg-plum-50 rounded-lg transition-colors"
                     aria-label="Clear selected style"
                   >
-                    <X className="w-4 h-4 text-stone-500" />
+                    <X className="w-4 h-4 text-ink-500" />
                   </button>
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <User className="w-10 h-10 text-stone-300 mx-auto mb-2" />
-                  <p className="text-sm text-stone-600">No style selected</p>
-                  <p className="text-xs text-stone-500 mt-1">
+                  <User className="w-10 h-10 text-plum-200 mx-auto mb-2" />
+                  <p className="text-sm text-ink-500">No style selected</p>
+                  <p className="text-xs text-ink-400 mt-1">
                     Choose from popular styles below
                   </p>
                 </div>
@@ -601,22 +651,23 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
                   onClick={() => handleStyleSelect(style)}
                   className={`p-2.5 text-left rounded-2xl border transition-all ${
                     selectedStyleForTryOn?.id === style.id
-                      ? 'border-ink-900 bg-amber-50 ring-2 ring-amber-200'
-                      : 'border-stone-200 bg-white hover:bg-stone-50 hover:border-stone-300'
+                      ? 'border-plum-700 bg-plum-50 ring-2 ring-plum-200'
+                      : 'border-cream-200 bg-white hover:bg-cream-50 hover:border-plum-200'
                   }`}
                 >
-                  <div className="relative w-full h-32 rounded-xl overflow-hidden bg-stone-100 mb-2">
+                  <div className="relative w-full h-32 rounded-xl overflow-hidden bg-cream-100 mb-2">
                     <Image
-                      src={style.image}
+                      src={resolveImageUrl(style.image)}
                       alt={style.name}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                   </div>
                   <p className="text-sm font-medium text-ink-900 truncate">
                     {style.name}
                   </p>
-                  <p className="text-sm text-amber-700 font-semibold mt-0.5">
+                  <p className="text-sm text-plum-700 font-semibold mt-0.5">
                     £{style.price}
                   </p>
                 </button>
@@ -626,7 +677,7 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
             <button
               onClick={handleTryOn}
               disabled={!selectedImage || !selectedStyleForTryOn || isProcessing}
-              className="w-full py-3.5 bg-ink-900 text-white font-semibold rounded-2xl transition-all hover:bg-ink-800 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
             >
               {isProcessing ? (
                 <>
@@ -655,8 +706,8 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
             )}
 
             {!selectedImage && (
-              <div className="mt-3 p-3 bg-stone-100 rounded-xl border border-stone-200">
-                <p className="text-xs text-stone-700 text-center flex items-center justify-center gap-1.5">
+              <div className="mt-3 p-3 bg-plum-50 rounded-xl border border-plum-100">
+                <p className="text-xs text-plum-700 text-center flex items-center justify-center gap-1.5 font-medium">
                   <ImageIcon className="w-3.5 h-3.5" />
                   Upload or take a photo to get started
                 </p>
@@ -664,8 +715,8 @@ export default function AITryOn({ selectedStyle, onClose, onStyleSelect }: AITry
             )}
 
             {selectedImage && !selectedStyleForTryOn && (
-              <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
-                <p className="text-xs text-amber-800 text-center font-medium">
+              <div className="mt-3 p-3 bg-rose-brand-50 rounded-xl border border-rose-brand-200">
+                <p className="text-xs text-rose-brand-700 text-center font-medium">
                   Select a hairstyle above to try on
                 </p>
               </div>
