@@ -86,9 +86,10 @@ function buildTimeOptions() {
   return options;
 }
 
+
 function extractErrorMessage(payload: any, status: number): string {
   if (typeof payload === 'string' && payload.trim()) return payload;
-  if (payload?.message) return String(payload.message);
+  if (payload?.message) return String(payload.message);   // ← with Option B, this now fires
   if (payload?.error) return String(payload.error);
   if (payload?.detail) return String(payload.detail);
   if (status === 409) return 'That time slot is already booked. Please pick another.';
