@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Info } from 'lucide-react';
+import { ArrowLeft, Info } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import RegisterForm from '../components/RegisterForm';
@@ -46,6 +46,15 @@ function RegisterPageContent() {
       </div>
 
       <div className="relative max-w-lg mx-auto">
+        {/* Back to home link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors mb-4 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          Back to home
+        </Link>
+
         <div className="text-center mb-6">
           <h1 className="text-3xl font-display font-bold text-ink-900">
             Create your account

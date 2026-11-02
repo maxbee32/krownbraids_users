@@ -20,15 +20,26 @@ import {
   MapPin,
   ChevronDown,
   Sparkles,
+  Lock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  EmbeddedCheckoutProvider,
+  EmbeddedCheckout,
+} from '@stripe/react-stripe-js';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Salon, Service } from '../../lib/types';
 import { resolveImageUrl } from '../../lib/imageUrl';
 
+// Initialize Stripe once
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
+);
+
 /* ------------------------------------------------------------------ */
-/*  Helpers — build date & time options                                */
+/*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
 function buildDateOptions(daysAhead = 30) {
@@ -75,6 +86,19 @@ function buildTimeOptions() {
   return options;
 }
 
+function extractErrorMessage(payload: any, status: number): string {
+  if (typeof payload === 'string' && payload.trim()) return payload;
+  if (payload?.message) return String(payload.message);
+  if (payload?.error) return String(payload.error);
+  if (payload?.detail) return String(payload.detail);
+  if (status === 409) return 'That time slot is already booked. Please pick another.';
+  if (status === 401) return 'Your session expired. Please sign in again.';
+  if (status === 403) return 'You are not allowed to make this booking.';
+  if (status === 400) return 'Please double-check your booking details.';
+  if (status >= 500) return 'Booking service is unavailable. Please try again.';
+  return 'Failed to create booking. Please try again.';
+}
+
 /* ------------------------------------------------------------------ */
 /*  Booking form                                                       */
 /* ------------------------------------------------------------------ */
@@ -85,6 +109,7 @@ function BookPageContent() {
   const salonId = searchParams.get('salonId') ?? '';
   const serviceId = searchParams.get('serviceId') ?? '';
   const cameFromLogin = searchParams.get('welcome') === '1';
+  const cancelled = searchParams.get('cancelled') === '1';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [salon, setSalon] = useState<Salon | null>(null);
@@ -106,25 +131,32 @@ function BookPageContent() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+
+  // ─── New: Stripe checkout state ─────────────────────────────
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [checkoutSessionId, setCheckoutSessionId] = useState<string | null>(null);
+  const [createdBookingId, setCreatedBookingId] = useState<number | null>(null);
 
   const [serviceImageError, setServiceImageError] = useState(false);
-
-  // "Welcome back" banner — only shown when arriving from login
   const [showWelcome, setShowWelcome] = useState(cameFromLogin);
+  const [showCancelled, setShowCancelled] = useState(cancelled);
 
-  // Memoize dropdown options so they don't rebuild every render
   const dateOptions = useMemo(() => buildDateOptions(30), []);
   const timeOptions = useMemo(() => buildTimeOptions(), []);
 
-  /* ---------- Auto-dismiss welcome banner ---------- */
   useEffect(() => {
     if (!showWelcome) return;
     const t = setTimeout(() => setShowWelcome(false), 5000);
     return () => clearTimeout(t);
   }, [showWelcome]);
 
-  /* ---------- Auth gate ---------- */
+  useEffect(() => {
+    if (!showCancelled) return;
+    const t = setTimeout(() => setShowCancelled(false), 8000);
+    return () => clearTimeout(t);
+  }, [showCancelled]);
+
+  /* ---------- Auth gate + prefill ---------- */
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -134,7 +166,19 @@ function BookPageContent() {
       router.replace(
         `/login?redirect=${encodeURIComponent(current)}&reason=book`
       );
+      return;
     }
+
+    const storedName = localStorage.getItem('userName') || '';
+    const storedEmail = localStorage.getItem('userEmail') || '';
+    const storedPhone = localStorage.getItem('userPhone') || '';
+
+    setForm((prev) => ({
+      ...prev,
+      customerName: prev.customerName || storedName,
+      customerEmail: prev.customerEmail || storedEmail,
+      customerPhone: prev.customerPhone || storedPhone,
+    }));
   }, [router]);
 
   /* ---------- Load salon + service ---------- */
@@ -192,7 +236,7 @@ function BookPageContent() {
     };
   }, [imagePreviews]);
 
-  /* ---------- Form handlers ---------- */
+  /* ---------- Handlers ---------- */
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -205,15 +249,11 @@ function BookPageContent() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     const incoming = Array.from(files);
-    const total = referenceImages.length + incoming.length;
-
-    if (total > 3) {
+    if (referenceImages.length + incoming.length > 3) {
       toast.error('You can upload up to 3 reference images.');
       return;
     }
-
     setReferenceImages((prev) => [...prev, ...incoming]);
     setImagePreviews((prev) => [
       ...prev,
@@ -224,12 +264,10 @@ function BookPageContent() {
   const removeImage = (index: number) => {
     const url = imagePreviews[index];
     if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
-
     setReferenceImages((prev) => prev.filter((_, i) => i !== index));
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /* ---------- Validation ---------- */
   const validate = (): string | null => {
     if (!form.customerName.trim()) return 'Your name is required';
     if (!form.customerEmail.trim()) return 'Email is required';
@@ -241,7 +279,7 @@ function BookPageContent() {
     return null;
   };
 
-  /* ---------- Submit ---------- */
+  /* ---------- Submit: create booking → create Stripe session ---------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -258,12 +296,13 @@ function BookPageContent() {
 
     try {
       const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Your session expired. Please sign in again.');
 
       const bookingData = {
         salonId: salon.id,
         serviceId: service.id,
         serviceName: service.name,
-        servicePrice: service.amount,
+        servicePrice: Number(service.amount),
         durationMinutes: service.durationMinutes,
         customerName: form.customerName.trim(),
         customerEmail: form.customerEmail.trim().toLowerCase(),
@@ -273,8 +312,8 @@ function BookPageContent() {
         notes: form.notes.trim(),
       };
 
+      // Step 1 — create booking
       let response: Response;
-
       if (referenceImages.length > 0) {
         const fd = new FormData();
         fd.append(
@@ -286,7 +325,7 @@ function BookPageContent() {
 
         response = await fetch('/api/auth/bookings/with-images', {
           method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: { Authorization: `Bearer ${token}` },
           body: fd,
         });
       } else {
@@ -294,7 +333,7 @@ function BookPageContent() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(bookingData),
         });
@@ -310,14 +349,52 @@ function BookPageContent() {
         );
       }
 
-      const data = await response.json();
-
+      const booking = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to create booking');
+        throw new Error(extractErrorMessage(booking, response.status));
       }
 
-      setSuccess(true);
-      toast.success('Booking requested — check your email.');
+      setCreatedBookingId(booking.id);
+
+      // Step 2 — create Stripe embedded session
+      const amount = Number(service.amount);
+      const commissionRate = 0.08;
+      const commissionAmount = Number((amount * commissionRate).toFixed(2));
+      const salonPayout = Number((amount - commissionAmount).toFixed(2));
+
+      const stripeRes = await fetch('/api/auth/stripe/create-embedded-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userType: 'SALON_BOOKING',
+          bookingId: booking.id,
+          salonId: salon.id,
+          customerEmail: form.customerEmail.trim().toLowerCase(),
+          serviceName: service.name,
+          amount,
+          currency: 'GBP',
+          commissionRate,
+          commissionAmount,
+          salonPayout,
+        }),
+      });
+
+      if (!stripeRes.ok) {
+        const stripeErr = await stripeRes.json().catch(() => ({}));
+        throw new Error(
+          stripeErr?.error || 'Failed to start payment. Please try again.'
+        );
+      }
+
+      const stripeData = await stripeRes.json();
+      setClientSecret(stripeData.clientSecret);
+      setCheckoutSessionId(stripeData.sessionId);
+
+      toast.success('Booking saved — complete payment to confirm.');
+
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to create booking';
@@ -326,6 +403,12 @@ function BookPageContent() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  /* ---------- On payment complete: go to success page ---------- */
+  const handlePaymentComplete = () => {
+    if (!checkoutSessionId) return;
+    router.push(`/book/success?session_id=${checkoutSessionId}`);
   };
 
   /* ---------- Loading ---------- */
@@ -374,58 +457,46 @@ function BookPageContent() {
     );
   }
 
-  /* ---------- Success ---------- */
-  if (success) {
+  /* ---------- Payment step — Embedded Checkout is now showing ---------- */
+  if (clientSecret) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-cream-50 py-12 px-4">
-          <div className="container-custom max-w-md mx-auto">
-            <div className="bg-white rounded-3xl border border-cream-200 p-8 sm:p-10 text-center shadow-[0_12px_40px_-20px_rgba(122,38,65,0.15)]">
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+        <main className="min-h-screen bg-cream-50 py-10 px-4">
+          <div className="container-custom max-w-2xl">
+            <div className="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-plum-50 border border-plum-100">
+              <div className="w-9 h-9 rounded-xl bg-white border border-plum-200 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-4 h-4 text-plum-700" />
               </div>
-
-              <h1 className="text-2xl font-display font-bold text-ink-900">
-                Booking requested
-              </h1>
-              <p className="text-ink-500 mt-3 leading-relaxed">
-                We&apos;ve sent the request to {salon.name}. They&apos;ll confirm
-                your appointment by email shortly.
-              </p>
-
-              <div className="mt-6 p-4 bg-cream-50 rounded-2xl border border-cream-200 text-left text-sm">
-                <p className="font-semibold text-ink-900 mb-2">
-                  {service.name}
+              <div>
+                <p className="text-sm font-semibold text-plum-800">
+                  Almost done — confirm your payment
                 </p>
-                <p className="text-ink-500">
-                  {new Date(form.appointmentDate).toLocaleDateString('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                  })}{' '}
-                  at {form.appointmentTime}
+                <p className="text-xs text-plum-700/80 mt-0.5">
+                  Your booking #{createdBookingId} is saved. Complete payment
+                  below to confirm it.
                 </p>
-                <p className="text-ink-500/80 mt-1">
-                  {service.durationMinutes} min · £{service.amount}
-                </p>
-              </div>
-
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/salons"
-                  className="flex-1 py-2.5 text-sm font-semibold text-plum-700 border border-plum-200 rounded-xl hover:bg-plum-50 transition-all text-center"
-                >
-                  Browse more
-                </Link>
-                <Link
-                  href="/"
-                  className="flex-1 py-2.5 text-sm font-semibold text-white bg-plum-700 rounded-xl hover:bg-plum-800 transition-all text-center"
-                >
-                  Back to home
-                </Link>
               </div>
             </div>
+
+            <div className="bg-white rounded-3xl border border-cream-200 overflow-hidden shadow-[0_12px_40px_-20px_rgba(122,38,65,0.18)]">
+              <div className="p-6 sm:p-8">
+                <EmbeddedCheckoutProvider
+                  stripe={stripePromise}
+                  options={{
+                    clientSecret,
+                    onComplete: handlePaymentComplete,
+                  }}
+                >
+                  <EmbeddedCheckout />
+                </EmbeddedCheckoutProvider>
+              </div>
+            </div>
+
+            <p className="text-xs text-ink-500 text-center mt-4">
+              Secure payment powered by Stripe. Your card details never
+              touch our servers.
+            </p>
           </div>
         </main>
         <Footer />
@@ -433,7 +504,7 @@ function BookPageContent() {
     );
   }
 
-  /* ---------- Main form ---------- */
+  /* ---------- Main booking form ---------- */
   const inputClass =
     'w-full pl-11 pr-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm';
   const labelClass = 'block text-sm font-medium text-ink-900 mb-1.5';
@@ -448,7 +519,6 @@ function BookPageContent() {
 
       <main className="min-h-screen bg-cream-50 py-10 px-4">
         <div className="container-custom max-w-5xl">
-          {/* Back link */}
           <Link
             href={`/salons/${salon.id}`}
             className="inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors mb-6"
@@ -458,9 +528,31 @@ function BookPageContent() {
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* ───── Form ───── */}
             <div className="lg:col-span-3">
-              {/* Welcome back banner (only when arriving from login) */}
+              {/* Cancelled banner */}
+              {showCancelled && (
+                <div className="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+                  <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-amber-800">
+                      Payment was cancelled
+                    </p>
+                    <p className="text-xs text-amber-700/80 mt-0.5">
+                      Your booking is saved but not confirmed. Try payment
+                      again below.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowCancelled(false)}
+                    className="p-1 text-amber-600 hover:text-amber-800"
+                    aria-label="Dismiss"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Welcome back banner */}
               {showWelcome && (
                 <div className="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
                   <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200 flex items-center justify-center flex-shrink-0">
@@ -493,7 +585,8 @@ function BookPageContent() {
                   Book your appointment
                 </h1>
                 <p className="text-ink-500 mt-2">
-                  Fill in your details and {salon.name} will confirm by email.
+                  Fill in your details and complete payment to confirm your
+                  appointment at {salon.name}.
                 </p>
               </div>
 
@@ -565,8 +658,7 @@ function BookPageContent() {
                     </div>
                   </div>
                 </div>
-
-                {/* Date & time — custom dropdowns */}
+                                {/* Date & time */}
                 <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-5 shadow-[0_8px_30px_-16px_rgba(122,38,65,0.10)]">
                   <h2 className="font-display font-bold text-ink-900 text-lg">
                     Date and time
@@ -724,16 +816,19 @@ function BookPageContent() {
                   {submitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Sending request…
+                      Preparing payment…
                     </>
                   ) : (
-                    'Send booking request'
+                    <>
+                      <Lock className="w-4 h-4" />
+                      Continue to payment
+                    </>
                   )}
                 </button>
 
                 <p className="text-xs text-ink-500 text-center">
-                  You won&apos;t be charged now. {salon.name} will confirm the
-                  appointment first.
+                  You&apos;ll be asked to pay £{service.amount} securely via
+                  Stripe. {salon.name} receives the booking instantly.
                 </p>
               </form>
             </div>
@@ -741,7 +836,7 @@ function BookPageContent() {
             {/* ───── Summary sidebar ───── */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden sticky top-24 shadow-[0_12px_40px_-20px_rgba(122,38,65,0.18)]">
-                {/* Service image — object-contain so the full image fits */}
+                {/* Service image */}
                 {(() => {
                   const imgSrc = resolveImageUrl(service.serviceImages?.[0]);
                   const showImg = Boolean(imgSrc) && !serviceImageError;

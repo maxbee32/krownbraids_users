@@ -97,6 +97,14 @@ export default function RegisterForm() {
       if (data.userId) localStorage.setItem('userId', String(data.userId));
       if (data.role) localStorage.setItem('role', data.role);
 
+      // Cache user details for auto-fill in forms (booking, etc.)
+      localStorage.setItem(
+        'userName',
+        `${form.firstName.trim()} ${form.lastName.trim()}`.trim()
+      );
+      localStorage.setItem('userEmail', form.email.trim().toLowerCase());
+      localStorage.setItem('userPhone', form.phoneNumber.trim());
+
       toast.success(
         'Account created. Check your email for the verification code.'
       );

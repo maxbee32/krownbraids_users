@@ -30,15 +30,31 @@ export default function LoginForm() {
   };
 
   /**
-   * Build the destination URL after successful login.
-   * Preserves any existing query params on `redirectTo` and appends
-   * `welcome=1` so the destination can show a welcome-back banner.
+   * Fetch the authenticated user's profile and cache it for form prefills.
+   * Non-critical — failure just means no prefill, login still succeeds.
    */
-  const buildRedirectUrl = (base: string): string => {
-    const sep = base.includes('?') ? '&' : '?';
-    // Don't double-append if already present (defensive)
-    if (/[?&]welcome=1(&|$)/.test(base)) return base;
-    return `${base}${sep}welcome=1`;
+  const fetchAndCacheUser = async (token: string) => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+
+      if (!res.ok) return;
+
+      const me = await res.json();
+
+      if (me.firstName || me.lastName) {
+        localStorage.setItem(
+          'userName',
+          `${me.firstName ?? ''} ${me.lastName ?? ''}`.trim()
+        );
+      }
+      if (me.email) localStorage.setItem('userEmail', me.email);
+      if (me.phoneNumber) localStorage.setItem('userPhone', me.phoneNumber);
+    } catch (err) {
+      console.warn('Failed to cache user profile:', err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -83,13 +99,21 @@ export default function LoginForm() {
       if (data.userId) localStorage.setItem('userId', String(data.userId));
       if (data.role) localStorage.setItem('role', data.role);
 
+      // Cache user profile for form prefill
+      if (data.token) {
+        await fetchAndCacheUser(data.token);
+      }
+
       window.dispatchEvent(new Event('storage'));
 
       toast.success('Signed in successfully.');
 
-      // Priority: explicit redirect from query → admin → home
       if (redirectTo) {
-        router.push(buildRedirectUrl(redirectTo));
+        const sep = redirectTo.includes('?') ? '&' : '?';
+        const url = /[?&]welcome=1(&|$)/.test(redirectTo)
+          ? redirectTo
+          : `${redirectTo}${sep}welcome=1`;
+        router.push(url);
         return;
       }
 
