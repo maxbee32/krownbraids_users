@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL =
   process.env.BOOKING_SERVICE_URL ||
-  'https://4ef0-82-36-98-104.ngrok-free.app/bookingservice';
+  'https://5f31-82-36-98-104.ngrok-free.app/bookingservice';
 
 export async function POST(req: NextRequest) {
   try {
