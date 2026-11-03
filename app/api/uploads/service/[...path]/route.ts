@@ -6,11 +6,11 @@ import { NextRequest, NextResponse } from 'next/server';
 // on different mount points.
 const CANDIDATES = [
   (filePath: string) =>
-    `${process.env.SERVICES_SERVICE_URL ?? 'https://5f31-82-36-98-104.ngrok-free.app'}/api/v1/auth/images/services/${filePath}`,
+    `${process.env.SERVICES_SERVICE_URL ?? 'https://9277-82-36-98-104.ngrok-free.app'}/api/v1/auth/images/services/${filePath}`,
   (filePath: string) =>
-    `${process.env.BUSINESS_SERVICE_URL ?? 'https://5f31-82-36-98-104.ngrok-free.app/bservice'}/api/v1/auth/images/services/${filePath}`,
+    `${process.env.BUSINESS_SERVICE_URL ?? 'https://9277-82-36-98-104.ngrok-free.app/bservice'}/api/v1/auth/images/services/${filePath}`,
   (filePath: string) =>
-    `${process.env.SERVICES_SERVICE_URL ?? 'https://5f31-82-36-98-104.ngrok-free.app'}/servicesservice/api/v1/auth/images/services/${filePath}`,
+    `${process.env.SERVICES_SERVICE_URL ?? 'https://9277-82-36-98-104.ngrok-free.app'}/servicesservice/api/v1/auth/images/services/${filePath}`,
 ];
 
 export async function GET(

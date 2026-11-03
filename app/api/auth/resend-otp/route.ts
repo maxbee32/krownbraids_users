@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL =
-  'https://5f31-82-36-98-104.ngrok-free.app/bookingservice/api/v1/auth/users/resend-otp';
+  'https://9277-82-36-98-104.ngrok-free.app/bookingservice/api/v1/auth/users/resend-otp';
 
 export async function POST(request: NextRequest) {
   const auth = request.headers.get('authorization');
