@@ -105,12 +105,16 @@ export default function Header() {
               )}
             </Link>
 
-            <button
-              className="p-2.5 rounded-full hover:bg-plum-50 transition-colors text-ink-600 hover:text-plum-700"
-              aria-label="Bookings"
-            >
-              <Calendar className="w-5 h-5" />
-            </button>
+            {/* Bookings — only for authenticated users */}
+            {isAuthed && (
+              <Link
+                href="/bookings"
+                className="p-2.5 rounded-full hover:bg-plum-50 transition-colors text-ink-600 hover:text-plum-700"
+                aria-label="My bookings"
+              >
+                <Calendar className="w-5 h-5" />
+              </Link>
+            )}
 
             <div className="w-px h-5 bg-cream-200 mx-2" />
 
@@ -214,10 +218,18 @@ export default function Header() {
                   </span>
                 )}
               </Link>
-              <button className="flex items-center gap-2 text-sm font-medium text-ink-600 hover:text-plum-700 transition-colors">
-                <Calendar className="w-5 h-5" />
-                <span>Bookings</span>
-              </button>
+
+              {/* Bookings — only for authenticated users */}
+              {isAuthed && (
+                <Link
+                  href="/bookings"
+                  onClick={closeMenu}
+                  className="flex items-center gap-2 text-sm font-medium text-ink-600 hover:text-plum-700 transition-colors"
+                >
+                  <Calendar className="w-5 h-5" />
+                  <span>Bookings</span>
+                </Link>
+              )}
             </div>
           </div>
         )}

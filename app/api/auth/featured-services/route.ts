@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 
 const BUSINESS_BASE =
-  'https://9125-82-36-98-104.ngrok-free.app/bservice';
+  'https://2c9e-82-36-98-104.ngrok-free.app/bservice';
 const SERVICES_BASE =
-  'https://9125-82-36-98-104.ngrok-free.app/servicesservice';
+  'https://2c9e-82-36-98-104.ngrok-free.app/servicesservice';
 
 /* ─────────────────────────────────────────────────────────────
    Cache — 60 seconds.
