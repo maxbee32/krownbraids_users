@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Sora } from 'next/font/google';
 import './globals.css';
+import SessionExpiryModal from "./components/SessionExpiryModal";
+
 
 const sora = Sora({
   subsets: ['latin'],
@@ -22,7 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={sora.variable}>
-      <body className="font-body">{children}</body>
+      <body className="font-body">{children}
+      <SessionExpiryModal />
+      </body>
     </html>
   );
 }

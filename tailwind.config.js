@@ -1,4 +1,4 @@
-
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -7,6 +7,19 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // ✅ Added for the smaller mobile screens
+      screens: {
+        xs: '480px',
+      },
+      // ✅ Added to ensure the header and content align perfectly
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          sm: '1.5rem',
+          lg: '2rem',
+        },
+      },
       colors: {
         primary: {
           50: '#fdf8f3',

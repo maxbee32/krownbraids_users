@@ -1,3 +1,4 @@
+// app/components/RegisterForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import {
   EyeOff,
   Loader2,
   AlertCircle,
+  Check,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -127,12 +129,11 @@ export default function RegisterForm() {
   };
 
   const inputClass =
-    'w-full pl-11 pr-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm';
-  const labelClass = 'block text-sm font-medium text-ink-900 mb-1.5';
+    'w-full pl-11 pr-4 py-3.5 bg-espresso-50 border border-espresso-200 rounded-xl text-espresso-950 placeholder-espresso-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm';
+  const labelClass = 'block text-sm font-semibold text-espresso-900 mb-1.5';
   const iconClass =
-    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400';
+    'absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400';
 
-  // Login link — preserves redirect + reason
   const loginParams = new URLSearchParams();
   if (redirectTo) loginParams.set('redirect', redirectTo);
   if (reason) loginParams.set('reason', reason);
@@ -146,7 +147,7 @@ export default function RegisterForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="firstName" className={labelClass}>
-            First name *
+            First name
           </label>
           <div className="relative">
             <User className={iconClass} />
@@ -165,7 +166,7 @@ export default function RegisterForm() {
         </div>
         <div>
           <label htmlFor="lastName" className={labelClass}>
-            Last name *
+            Last name
           </label>
           <div className="relative">
             <User className={iconClass} />
@@ -187,7 +188,7 @@ export default function RegisterForm() {
       {/* Email */}
       <div>
         <label htmlFor="email" className={labelClass}>
-          Email *
+          Email Address
         </label>
         <div className="relative">
           <Mail className={iconClass} />
@@ -208,7 +209,7 @@ export default function RegisterForm() {
       {/* Phone */}
       <div>
         <label htmlFor="phoneNumber" className={labelClass}>
-          Phone number *
+          Phone Number
         </label>
         <div className="relative">
           <Phone className={iconClass} />
@@ -229,7 +230,7 @@ export default function RegisterForm() {
       {/* Password */}
       <div>
         <label htmlFor="password" className={labelClass}>
-          Password *
+          Password
         </label>
         <div className="relative">
           <Lock className={iconClass} />
@@ -247,7 +248,7 @@ export default function RegisterForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-plum-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-espresso-400 hover:text-espresso-900 transition-colors"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
@@ -262,7 +263,7 @@ export default function RegisterForm() {
       {/* Confirm password */}
       <div>
         <label htmlFor="confirmPassword" className={labelClass}>
-          Confirm password *
+          Confirm Password
         </label>
         <div className="relative">
           <Lock className={iconClass} />
@@ -280,7 +281,7 @@ export default function RegisterForm() {
           <button
             type="button"
             onClick={() => setShowConfirm((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-plum-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-espresso-400 hover:text-espresso-900 transition-colors"
             aria-label={showConfirm ? 'Hide password' : 'Show password'}
           >
             {showConfirm ? (
@@ -290,13 +291,30 @@ export default function RegisterForm() {
             )}
           </button>
         </div>
+
+        {/* Live match indicator */}
+        {form.confirmPassword && (
+          <p className={`text-xs mt-1.5 flex items-center gap-1.5 font-medium ${
+            form.password === form.confirmPassword
+              ? 'text-emerald-600'
+              : 'text-red-500'
+          }`}>
+            {form.password === form.confirmPassword ? (
+              <>
+                <Check className="w-3.5 h-3.5" /> Passwords match
+              </>
+            ) : (
+              'Passwords do not match'
+            )}
+          </p>
+        )}
       </div>
 
       {/* Error */}
       {error && (
-        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+        <div className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl">
           <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+          <p className="text-sm text-red-700 font-medium">{error}</p>
         </div>
       )}
 
@@ -304,7 +322,7 @@ export default function RegisterForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-espresso-950 text-white font-bold rounded-xl transition-all hover:bg-primary-500 hover:text-espresso-950 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-espresso-950/10"
       >
         {submitting ? (
           <>
@@ -312,15 +330,15 @@ export default function RegisterForm() {
             Creating account…
           </>
         ) : (
-          'Create account'
+          'Create Account'
         )}
       </button>
 
-      <p className="text-xs text-ink-500 text-center">
+      <p className="text-sm text-espresso-500 text-center pt-2">
         Already have an account?{' '}
         <Link
           href={loginHref}
-          className="text-plum-700 hover:text-plum-800 font-semibold transition-colors"
+          className="text-primary-600 hover:text-primary-700 font-semibold transition-colors"
         >
           Sign in
         </Link>

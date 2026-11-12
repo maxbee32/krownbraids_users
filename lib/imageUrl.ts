@@ -4,6 +4,11 @@ export function resolveImageUrl(path?: string | null): string {
   if (!path || !path.trim()) return '';
   const raw = path.trim();
 
+  // Local public assets (/assets/...) — serve as-is
+  if (raw.startsWith('/assets/')) {
+    return raw;
+  }
+
   // Absolute URL (services-service)
   if (/^https?:\/\//i.test(raw)) {
     const match = raw.match(/\/api\/v1\/auth\/images\/services\/(.+)$/i);

@@ -1,3 +1,4 @@
+// app/book/success/page.tsx
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -30,7 +31,7 @@ function SuccessContent() {
     }
 
     let attempts = 0;
-    const MAX = 15; // 15 × 2s = 30s max
+    const MAX = 15;
 
     const check = async () => {
       attempts++;
@@ -54,7 +55,7 @@ function SuccessContent() {
         setTimeout(check, 2000);
       } else {
         setVerifying(false);
-        setError(null); // show "processing" state, not error
+        setError(null);
       }
     };
 
@@ -62,48 +63,51 @@ function SuccessContent() {
   }, [sessionId]);
 
   return (
-    <main className="min-h-screen bg-cream-50 py-12 px-4">
+    <main className="min-h-screen bg-espresso-50 py-16 px-4">
       <div className="container-custom max-w-md mx-auto">
-        <div className="bg-white rounded-3xl border border-cream-200 p-8 sm:p-10 text-center shadow-[0_12px_40px_-20px_rgba(122,38,65,0.15)]">
+        <div className="bg-white rounded-[2rem] border border-espresso-100 p-8 sm:p-10 text-center shadow-[0_30px_80px_-30px_rgba(42,34,31,0.15)]">
           {verifying ? (
             <>
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-plum-50 border border-plum-100 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-plum-700 animate-spin" />
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-espresso-50 border border-espresso-100 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
               </div>
-              <h1 className="text-2xl font-display font-bold text-ink-900">
+              <h1 className="text-2xl font-display font-bold text-espresso-950">
                 Confirming your payment…
               </h1>
-              <p className="text-ink-500 mt-3 leading-relaxed text-sm">
+              <p className="text-espresso-500 mt-3 leading-relaxed text-sm">
                 This usually takes a few seconds. Please don&apos;t close this page.
               </p>
             </>
           ) : ok ? (
             <>
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
                 <CheckCircle2 className="w-8 h-8 text-emerald-600" />
               </div>
-              <h1 className="text-2xl font-display font-bold text-ink-900">
+              <h1 className="text-2xl font-display font-bold text-espresso-950">
                 Booking confirmed
               </h1>
-              <p className="text-ink-500 mt-3 leading-relaxed">
+              <p className="text-espresso-500 mt-3 leading-relaxed">
                 Your payment was successful. The salon will confirm your
                 appointment shortly — check your email for details.
               </p>
 
               {(bookingId || amount) && (
-                <div className="mt-6 p-4 bg-cream-50 rounded-2xl border border-cream-200 text-left text-sm">
+                <div className="mt-8 p-5 bg-espresso-50 rounded-2xl border border-espresso-100 text-left text-sm">
                   {bookingId && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-ink-500">Booking</span>
-                      <span className="font-medium text-ink-900">
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-espresso-500 font-medium">Booking</span>
+                      <span className="font-bold text-espresso-950">
                         #{bookingId}
                       </span>
                     </div>
                   )}
+                  {bookingId && amount && (
+                    <div className="my-2 border-t border-espresso-100" />
+                  )}
                   {amount && (
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-ink-500">Amount paid</span>
-                      <span className="font-display font-bold text-plum-700">
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-espresso-500 font-medium">Amount paid</span>
+                      <span className="font-display font-bold text-primary-600 text-base">
                         £{amount.toFixed(2)}
                       </span>
                     </div>
@@ -111,16 +115,16 @@ function SuccessContent() {
                 </div>
               )}
 
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/salons"
-                  className="flex-1 py-2.5 text-sm font-semibold text-plum-700 border border-plum-200 rounded-xl hover:bg-plum-50 transition-all text-center"
+                  className="flex-1 py-3 text-sm font-bold text-espresso-700 border border-espresso-200 rounded-xl hover:bg-espresso-50 transition-colors text-center"
                 >
                   Browse more
                 </Link>
                 <Link
                   href="/"
-                  className="flex-1 py-2.5 text-sm font-semibold text-white bg-plum-700 rounded-xl hover:bg-plum-800 transition-all text-center"
+                  className="flex-1 py-3 text-sm font-bold text-white bg-espresso-950 rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-all text-center"
                 >
                   Back to home
                 </Link>
@@ -128,18 +132,18 @@ function SuccessContent() {
             </>
           ) : error ? (
             <>
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center">
                 <AlertCircle className="w-8 h-8 text-red-500" />
               </div>
-              <h1 className="text-2xl font-display font-bold text-ink-900">
+              <h1 className="text-2xl font-display font-bold text-espresso-950">
                 Something went wrong
               </h1>
-              <p className="text-ink-500 mt-3 leading-relaxed text-sm">
+              <p className="text-espresso-500 mt-3 leading-relaxed text-sm">
                 {error}
               </p>
               <Link
                 href="/salons"
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-plum-700 text-white font-medium text-sm rounded-xl hover:bg-plum-800 transition-all"
+                className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-espresso-950 text-white font-bold text-sm rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to salons
@@ -147,19 +151,19 @@ function SuccessContent() {
             </>
           ) : (
             <>
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-amber-600" />
               </div>
-              <h1 className="text-2xl font-display font-bold text-ink-900">
+              <h1 className="text-2xl font-display font-bold text-espresso-950">
                 Payment processing
               </h1>
-              <p className="text-ink-500 mt-3 leading-relaxed text-sm">
+              <p className="text-espresso-500 mt-3 leading-relaxed text-sm">
                 We&apos;ve received your payment but our system is still
                 confirming it. You&apos;ll get an email within a few minutes.
               </p>
               <Link
                 href="/"
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-plum-700 text-white font-medium text-sm rounded-xl hover:bg-plum-800 transition-all"
+                className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-espresso-950 text-white font-bold text-sm rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-colors"
               >
                 Back to home
               </Link>
@@ -177,9 +181,9 @@ export default function BookSuccessPage() {
       <Header />
       <Suspense
         fallback={
-          <main className="min-h-screen bg-cream-50 py-12 px-4">
+          <main className="min-h-screen bg-espresso-50 py-16 px-4">
             <div className="container-custom text-center py-24">
-              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-plum-200 border-t-plum-700 mx-auto" />
+              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-espresso-200 border-t-primary-500 mx-auto" />
             </div>
           </main>
         }

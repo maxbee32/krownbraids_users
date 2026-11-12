@@ -1,3 +1,4 @@
+// app/book/page.tsx
 'use client';
 
 import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
@@ -16,10 +17,8 @@ import {
   X,
   Loader2,
   AlertCircle,
-  CheckCircle2,
   MapPin,
   ChevronDown,
-  Sparkles,
   Lock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -33,7 +32,6 @@ import Footer from '../components/Footer';
 import { Salon, Service } from '../../lib/types';
 import { resolveImageUrl } from '../../lib/imageUrl';
 
-// Initialize Stripe once
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
 );
@@ -86,10 +84,9 @@ function buildTimeOptions() {
   return options;
 }
 
-
 function extractErrorMessage(payload: any, status: number): string {
   if (typeof payload === 'string' && payload.trim()) return payload;
-  if (payload?.message) return String(payload.message);   // ← with Option B, this now fires
+  if (payload?.message) return String(payload.message);
   if (payload?.error) return String(payload.error);
   if (payload?.detail) return String(payload.detail);
   if (status === 409) return 'That time slot is already booked. Please pick another.';
@@ -133,7 +130,6 @@ function BookPageContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── New: Stripe checkout state ─────────────────────────────
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [checkoutSessionId, setCheckoutSessionId] = useState<string | null>(null);
   const [createdBookingId, setCreatedBookingId] = useState<number | null>(null);
@@ -280,7 +276,7 @@ function BookPageContent() {
     return null;
   };
 
-  /* ---------- Submit: create booking → create Stripe session ---------- */
+  /* ---------- Submit ---------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -313,7 +309,6 @@ function BookPageContent() {
         notes: form.notes.trim(),
       };
 
-      // Step 1 — create booking
       let response: Response;
       if (referenceImages.length > 0) {
         const fd = new FormData();
@@ -357,7 +352,6 @@ function BookPageContent() {
 
       setCreatedBookingId(booking.id);
 
-      // Step 2 — create Stripe embedded session
       const amount = Number(service.amount);
       const commissionRate = 0.08;
       const commissionAmount = Number((amount * commissionRate).toFixed(2));
@@ -395,7 +389,6 @@ function BookPageContent() {
       setCheckoutSessionId(stripeData.sessionId);
 
       toast.success('Booking saved — complete payment to confirm.');
-
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to create booking';
@@ -406,7 +399,6 @@ function BookPageContent() {
     }
   };
 
-  /* ---------- On payment complete: go to success page ---------- */
   const handlePaymentComplete = () => {
     if (!checkoutSessionId) return;
     router.push(`/book/success?session_id=${checkoutSessionId}`);
@@ -417,10 +409,10 @@ function BookPageContent() {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-cream-50 py-12 px-4">
+        <main className="min-h-screen bg-espresso-50 py-12 px-4">
           <div className="container-custom text-center py-24">
-            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-plum-200 border-t-plum-700 mx-auto" />
-            <p className="text-ink-500 mt-4 text-sm">Loading booking…</p>
+            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-espresso-200 border-t-primary-500 mx-auto" />
+            <p className="text-espresso-500 mt-4 text-sm">Loading booking…</p>
           </div>
         </main>
         <Footer />
@@ -433,21 +425,21 @@ function BookPageContent() {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-cream-50 py-12 px-4">
+        <main className="min-h-screen bg-espresso-50 py-12 px-4">
           <div className="container-custom max-w-md mx-auto text-center py-24">
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-plum-50 border border-plum-100 flex items-center justify-center text-3xl">
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-espresso-50 border border-espresso-100 flex items-center justify-center text-3xl">
               🔍
             </div>
-            <h1 className="text-2xl font-display font-bold text-ink-900">
+            <h1 className="text-2xl font-display font-bold text-espresso-950">
               Booking not available
             </h1>
-            <p className="text-ink-500 mt-2 text-sm">
+            <p className="text-espresso-500 mt-2 text-sm">
               The salon or service you&apos;re trying to book doesn&apos;t exist
               or is no longer available.
             </p>
             <Link
               href="/salons"
-              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-plum-700 text-white font-medium text-sm rounded-xl hover:bg-plum-800 transition-all"
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-espresso-950 text-white font-medium text-sm rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-all"
             >
               Browse salons
             </Link>
@@ -458,29 +450,29 @@ function BookPageContent() {
     );
   }
 
-  /* ---------- Payment step — Embedded Checkout is now showing ---------- */
+  /* ---------- Payment step ---------- */
   if (clientSecret) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-cream-50 py-10 px-4">
+        <main className="min-h-screen bg-espresso-50 py-12 px-4">
           <div className="container-custom max-w-2xl">
-            <div className="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-plum-50 border border-plum-100">
-              <div className="w-9 h-9 rounded-xl bg-white border border-plum-200 flex items-center justify-center flex-shrink-0">
-                <Lock className="w-4 h-4 text-plum-700" />
+            <div className="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-primary-50 border border-primary-200">
+              <div className="w-9 h-9 rounded-xl bg-white border border-primary-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Lock className="w-4 h-4 text-primary-600" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-plum-800">
+                <p className="text-sm font-semibold text-espresso-950">
                   Almost done — confirm your payment
                 </p>
-                <p className="text-xs text-plum-700/80 mt-0.5">
+                <p className="text-xs text-espresso-600 mt-0.5">
                   Your booking #{createdBookingId} is saved. Complete payment
                   below to confirm it.
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-cream-200 overflow-hidden shadow-[0_12px_40px_-20px_rgba(122,38,65,0.18)]">
+            <div className="bg-white rounded-3xl border border-espresso-100 overflow-hidden shadow-[0_20px_60px_-15px_rgba(42,34,31,0.1)]">
               <div className="p-6 sm:p-8">
                 <EmbeddedCheckoutProvider
                   stripe={stripePromise}
@@ -494,7 +486,7 @@ function BookPageContent() {
               </div>
             </div>
 
-            <p className="text-xs text-ink-500 text-center mt-4">
+            <p className="text-xs text-espresso-500 text-center mt-6">
               Secure payment powered by Stripe. Your card details never
               touch our servers.
             </p>
@@ -505,24 +497,24 @@ function BookPageContent() {
     );
   }
 
-  /* ---------- Main booking form ---------- */
+  /* ---------- Main form ---------- */
   const inputClass =
-    'w-full pl-11 pr-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm';
-  const labelClass = 'block text-sm font-medium text-ink-900 mb-1.5';
+    'w-full pl-11 pr-4 py-3.5 bg-espresso-50 border border-espresso-200 rounded-xl text-espresso-950 placeholder-espresso-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm';
+  const labelClass = 'block text-sm font-semibold text-espresso-900 mb-1.5';
   const iconClass =
-    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400';
+    'absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400';
   const selectClass =
-    'w-full pl-11 pr-10 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm appearance-none cursor-pointer';
+    'w-full pl-11 pr-10 py-3.5 bg-espresso-50 border border-espresso-200 rounded-xl text-espresso-950 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm appearance-none cursor-pointer';
 
   return (
     <>
       <Header />
 
-      <main className="min-h-screen bg-cream-50 py-10 px-4">
+      <main className="min-h-screen bg-espresso-50 py-12 px-4">
         <div className="container-custom max-w-5xl">
           <Link
             href={`/salons/${salon.id}`}
-            className="inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors mb-6"
+            className="inline-flex items-center gap-1.5 text-sm text-espresso-500 hover:text-espresso-950 font-medium transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to {salon.name}
@@ -557,7 +549,7 @@ function BookPageContent() {
               {showWelcome && (
                 <div className="mb-6 flex items-start gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
                   <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-emerald-800">
@@ -579,13 +571,13 @@ function BookPageContent() {
               )}
 
               <div className="mb-8">
-                <p className="text-xs font-semibold tracking-[0.15em] text-rose-brand-600 uppercase mb-2">
+                <p className="text-xs font-semibold tracking-[0.15em] text-primary-600 uppercase mb-2">
                   New booking
                 </p>
-                <h1 className="text-3xl sm:text-4xl font-display font-bold text-ink-900">
+                <h1 className="text-3xl sm:text-4xl font-display font-bold text-espresso-950">
                   Book your appointment
                 </h1>
-                <p className="text-ink-500 mt-2">
+                <p className="text-espresso-500 mt-2">
                   Fill in your details and complete payment to confirm your
                   appointment at {salon.name}.
                 </p>
@@ -593,14 +585,14 @@ function BookPageContent() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Your details */}
-                <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-5 shadow-[0_8px_30px_-16px_rgba(122,38,65,0.10)]">
-                  <h2 className="font-display font-bold text-ink-900 text-lg">
+                <div className="bg-white rounded-2xl border border-espresso-100 p-6 space-y-5 shadow-[0_20px_60px_-15px_rgba(42,34,31,0.05)]">
+                  <h2 className="font-display font-bold text-espresso-950 text-lg">
                     Your details
                   </h2>
 
                   <div>
                     <label htmlFor="customerName" className={labelClass}>
-                      Full name *
+                      Full name
                     </label>
                     <div className="relative">
                       <User className={iconClass} />
@@ -621,7 +613,7 @@ function BookPageContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="customerEmail" className={labelClass}>
-                        Email *
+                        Email
                       </label>
                       <div className="relative">
                         <Mail className={iconClass} />
@@ -640,7 +632,7 @@ function BookPageContent() {
                     </div>
                     <div>
                       <label htmlFor="customerPhone" className={labelClass}>
-                        Phone *
+                        Phone
                       </label>
                       <div className="relative">
                         <Phone className={iconClass} />
@@ -659,16 +651,17 @@ function BookPageContent() {
                     </div>
                   </div>
                 </div>
-                                {/* Date & time */}
-                <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-5 shadow-[0_8px_30px_-16px_rgba(122,38,65,0.10)]">
-                  <h2 className="font-display font-bold text-ink-900 text-lg">
+
+                {/* Date & time */}
+                <div className="bg-white rounded-2xl border border-espresso-100 p-6 space-y-5 shadow-[0_20px_60px_-15px_rgba(42,34,31,0.05)]">
+                  <h2 className="font-display font-bold text-espresso-950 text-lg">
                     Date and time
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="appointmentDate" className={labelClass}>
-                        Date *
+                        Date
                       </label>
                       <div className="relative">
                         <Calendar className={iconClass} />
@@ -687,13 +680,13 @@ function BookPageContent() {
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400 pointer-events-none" />
                       </div>
                     </div>
 
                     <div>
                       <label htmlFor="appointmentTime" className={labelClass}>
-                        Time *
+                        Time
                       </label>
                       <div className="relative">
                         <Clock className={iconClass} />
@@ -712,24 +705,24 @@ function BookPageContent() {
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400 pointer-events-none" />
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-xs text-ink-500">
+                  <p className="text-xs text-espresso-500">
                     The salon will confirm availability. If the slot isn&apos;t
                     free, they&apos;ll suggest alternatives.
                   </p>
                 </div>
 
                 {/* Try-on images */}
-                <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-4 shadow-[0_8px_30px_-16px_rgba(122,38,65,0.10)]">
+                <div className="bg-white rounded-2xl border border-espresso-100 p-6 space-y-4 shadow-[0_20px_60px_-15px_rgba(42,34,31,0.05)]">
                   <div>
-                    <h2 className="font-display font-bold text-ink-900 text-lg">
+                    <h2 className="font-display font-bold text-espresso-950 text-lg">
                       Try-on reference
                     </h2>
-                    <p className="text-xs text-ink-500 mt-1">
+                    <p className="text-xs text-espresso-500 mt-1">
                       Upload a photo of the style you want — from the try-on or
                       anywhere else. Optional, up to 3 images.
                     </p>
@@ -739,7 +732,7 @@ function BookPageContent() {
                     {imagePreviews.map((preview, index) => (
                       <div
                         key={index}
-                        className="relative w-24 h-24 rounded-xl overflow-hidden border border-cream-200 group"
+                        className="relative w-24 h-24 rounded-xl overflow-hidden border border-espresso-100 group"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -750,7 +743,7 @@ function BookPageContent() {
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 p-1 rounded-full bg-plum-900/80 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 p-1 rounded-full bg-espresso-950/80 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                           aria-label="Remove image"
                         >
                           <X className="w-3 h-3" />
@@ -762,7 +755,7 @@ function BookPageContent() {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-24 h-24 rounded-xl border-2 border-dashed border-cream-300 hover:border-plum-400 transition-colors flex flex-col items-center justify-center gap-1 text-ink-500 hover:text-plum-700"
+                        className="w-24 h-24 rounded-xl border-2 border-dashed border-espresso-200 hover:border-primary-400 transition-colors flex flex-col items-center justify-center gap-1 text-espresso-500 hover:text-primary-600"
                       >
                         <ImagePlus className="w-5 h-5" />
                         <span className="text-[10px] font-medium">Add</span>
@@ -781,20 +774,20 @@ function BookPageContent() {
                 </div>
 
                 {/* Notes */}
-                <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-4 shadow-[0_8px_30px_-16px_rgba(122,38,65,0.10)]">
-                  <h2 className="font-display font-bold text-ink-900 text-lg">
+                <div className="bg-white rounded-2xl border border-espresso-100 p-6 space-y-4 shadow-[0_20px_60px_-15px_rgba(42,34,31,0.05)]">
+                  <h2 className="font-display font-bold text-espresso-950 text-lg">
                     Notes for the salon
                   </h2>
 
                   <div className="relative">
-                    <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-ink-400" />
+                    <MessageSquare className="absolute left-3.5 top-4 w-4 h-4 text-espresso-400" />
                     <textarea
                       name="notes"
                       rows={4}
                       value={form.notes}
                       onChange={handleChange}
                       placeholder="Hair length, allergies, what you're after, questions…"
-                      className={`${inputClass} resize-none pt-3`}
+                      className={`${inputClass} resize-none pt-3.5`}
                       disabled={submitting}
                     />
                   </div>
@@ -802,9 +795,9 @@ function BookPageContent() {
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl">
                     <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-700">{error}</p>
+                    <p className="text-sm text-red-700 font-medium">{error}</p>
                   </div>
                 )}
 
@@ -812,7 +805,7 @@ function BookPageContent() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-4 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2 shadow-lg shadow-plum-700/20"
+                  className="w-full py-4 bg-espresso-950 text-white font-bold rounded-xl transition-all hover:bg-primary-500 hover:text-espresso-950 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-espresso-950/10"
                 >
                   {submitting ? (
                     <>
@@ -827,7 +820,7 @@ function BookPageContent() {
                   )}
                 </button>
 
-                <p className="text-xs text-ink-500 text-center">
+                <p className="text-xs text-espresso-500 text-center">
                   You&apos;ll be asked to pay £{service.amount} securely via
                   Stripe. {salon.name} receives the booking instantly.
                 </p>
@@ -836,27 +829,26 @@ function BookPageContent() {
 
             {/* ───── Summary sidebar ───── */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden sticky top-24 shadow-[0_12px_40px_-20px_rgba(122,38,65,0.18)]">
-                {/* Service image */}
+              <div className="bg-white rounded-2xl border border-espresso-100 overflow-hidden sticky top-24 shadow-[0_20px_60px_-15px_rgba(42,34,31,0.1)]">
                 {(() => {
                   const imgSrc = resolveImageUrl(service.serviceImages?.[0]);
                   const showImg = Boolean(imgSrc) && !serviceImageError;
 
                   return (
-                    <div className="relative h-56 bg-gradient-to-br from-rose-brand-50 via-plum-50 to-cream-50 overflow-hidden">
+                    <div className="relative aspect-[4/3] bg-espresso-50 overflow-hidden">
                       {showImg ? (
                         <Image
                           src={imgSrc}
                           alt={service.name}
                           fill
-                          className="object-contain p-3"
+                          className="object-cover"
                           sizes="(max-width: 1024px) 100vw, 400px"
                           onError={() => setServiceImageError(true)}
                           unoptimized
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-4xl">✨</span>
+                        <div className="absolute inset-0 flex items-center justify-center text-espresso-300">
+                          <ImagePlus className="w-10 h-10" />
                         </div>
                       )}
                     </div>
@@ -865,49 +857,49 @@ function BookPageContent() {
 
                 <div className="p-6 space-y-4">
                   <div>
-                    <p className="text-xs font-semibold tracking-[0.15em] text-rose-brand-600 uppercase mb-2">
+                    <p className="text-xs font-semibold tracking-[0.15em] text-primary-600 uppercase mb-2">
                       You&apos;re booking
                     </p>
-                    <h3 className="text-lg font-display font-bold text-ink-900">
+                    <h3 className="text-lg font-display font-bold text-espresso-950">
                       {service.name}
                     </h3>
                     {service.category && (
-                      <p className="text-xs text-ink-500 mt-0.5">
+                      <p className="text-xs text-espresso-500 mt-0.5">
                         {service.category}
                       </p>
                     )}
                   </div>
 
-                  <div className="pt-4 border-t border-cream-200 space-y-2 text-sm">
+                  <div className="pt-4 border-t border-espresso-100 space-y-2 text-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-ink-500">Price</span>
-                      <span className="font-display font-bold text-plum-700">
+                      <span className="text-espresso-500">Price</span>
+                      <span className="font-display font-bold text-espresso-950">
                         £{service.amount}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-ink-500">Duration</span>
-                      <span className="text-ink-900">
+                      <span className="text-espresso-500">Duration</span>
+                      <span className="text-espresso-950 font-medium">
                         {service.durationMinutes} min
                       </span>
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-cream-200">
-                    <p className="text-xs font-semibold text-ink-500 uppercase tracking-wide mb-2">
+                  <div className="pt-4 border-t border-espresso-100">
+                    <p className="text-xs font-semibold text-espresso-500 uppercase tracking-wide mb-2">
                       At
                     </p>
                     <Link
                       href={`/salons/${salon.id}`}
                       className="block group"
                     >
-                      <p className="font-semibold text-ink-900 group-hover:text-plum-700 transition-colors">
+                      <p className="font-semibold text-espresso-950 group-hover:text-primary-600 transition-colors">
                         {salon.name}
                       </p>
                       {(salon.city || salon.country) && (
                         <div className="flex items-center gap-1 mt-1">
-                          <MapPin className="w-3 h-3 text-ink-400 flex-shrink-0" />
-                          <p className="text-xs text-ink-500">
+                          <MapPin className="w-3 h-3 text-espresso-400 flex-shrink-0" />
+                          <p className="text-xs text-espresso-500">
                             {[salon.city, salon.country]
                               .filter(Boolean)
                               .join(', ')}
@@ -918,11 +910,11 @@ function BookPageContent() {
                   </div>
 
                   {form.appointmentDate && form.appointmentTime && (
-                    <div className="pt-4 border-t border-cream-200">
-                      <p className="text-xs font-semibold text-ink-500 uppercase tracking-wide mb-2">
+                    <div className="pt-4 border-t border-espresso-100">
+                      <p className="text-xs font-semibold text-espresso-500 uppercase tracking-wide mb-2">
                         When
                       </p>
-                      <p className="text-sm text-ink-900 font-medium">
+                      <p className="text-sm text-espresso-950 font-medium">
                         {new Date(
                           form.appointmentDate + 'T00:00:00'
                         ).toLocaleDateString('en-GB', {
@@ -932,7 +924,7 @@ function BookPageContent() {
                           year: 'numeric',
                         })}
                       </p>
-                      <p className="text-sm text-ink-500">
+                      <p className="text-sm text-espresso-500">
                         at {form.appointmentTime}
                       </p>
                     </div>
@@ -959,9 +951,9 @@ export default function BookPage() {
       fallback={
         <>
           <Header />
-          <main className="min-h-screen bg-cream-50 py-12 px-4">
+          <main className="min-h-screen bg-espresso-50 py-12 px-4">
             <div className="container-custom text-center py-24">
-              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-plum-200 border-t-plum-700 mx-auto" />
+              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-espresso-200 border-t-primary-500 mx-auto" />
             </div>
           </main>
           <Footer />

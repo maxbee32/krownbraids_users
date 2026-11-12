@@ -1,59 +1,57 @@
 // components/ui/Logo.tsx
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface LogoProps {
-  variant?: 'default' | 'light';
   href?: string;
-  showTagline?: boolean;
   className?: string;
   onClick?: () => void;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export function Logo({
-  variant = 'default',
   href = '/',
-  showTagline = true,
   className = '',
   onClick,
+  size = 'md',
 }: LogoProps) {
-  const iconBg =
-    variant === 'light'
-      ? 'bg-white/10 ring-1 ring-white/20'
-      : 'bg-ink-900 shadow-sm';
-
-  const kColor = variant === 'light' ? 'text-amber-300' : 'text-white';
-
-  const primary = variant === 'light' ? 'text-white' : 'text-ink-900';
-  const accent = variant === 'light' ? 'text-amber-300' : 'text-ink-900';
-  const tagline = variant === 'light' ? 'text-white/50' : 'text-stone-500';
+  const heights = {
+    sm: 'h-9 sm:h-10',
+    md: 'h-11 sm:h-14',
+    lg: 'h-14 sm:h-20',
+  }[size];
 
   return (
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center gap-3 group flex-shrink-0 ${className}`}
+      className={`group inline-flex items-center gap-2.5 sm:gap-3 flex-shrink-0 ${className}`}
+      aria-label="Krownbraids home"
     >
       <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:shadow-md ${iconBg}`}
+        className={`relative ${heights} w-auto transition-transform duration-300 group-hover:scale-[1.02]`}
       >
-        <span className={`font-display font-bold text-xl leading-none ${kColor}`}>
-          K
-        </span>
+        <Image
+          src="/assets/Krownbraids Crowned Beauty Logo.png"
+          alt="Krownbraids"
+          width={400}
+          height={200}
+          // ✅ THE FIX: 
+          // brightness(0) turns everything black
+          // invert(1) turns the black to pure white, and the white background to black
+          // mix-blend-screen drops the black background out entirely
+          className="object-contain w-auto h-full mix-blend-screen brightness-0 invert"
+          priority
+        />
       </div>
 
-      <div className="flex flex-col leading-none">
-        <span
-          className={`text-lg sm:text-xl font-display font-bold tracking-tight whitespace-nowrap ${primary}`}
-        >
-          KROWN<span className={accent}> BRAIDS</span>
+      <div className="hidden min-[480px]:flex flex-col justify-center leading-none mt-0.5">
+        <span className={`font-display font-bold uppercase tracking-[0.12em] text-white text-sm sm:text-base md:text-lg`}>
+          Krown<span className="text-primary-500">braids</span>
         </span>
-        {showTagline && (
-          <span
-            className={`text-[9px] sm:text-[10px] font-light tracking-[0.2em] uppercase mt-0.5 ${tagline}`}
-          >
-            wear your crown
-          </span>
-        )}
+        <span className={`font-medium uppercase tracking-[0.24em] text-espresso-200 mt-1 text-[7px] sm:text-[8px] md:text-[9px]`}>
+          Wear your crown
+        </span>
       </div>
     </Link>
   );

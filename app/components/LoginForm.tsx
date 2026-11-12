@@ -1,3 +1,4 @@
+// app/components/LoginForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -29,10 +30,6 @@ export default function LoginForm() {
     return null;
   };
 
-  /**
-   * Fetch the authenticated user's profile and cache it for form prefills.
-   * Non-critical — failure just means no prefill, login still succeeds.
-   */
   const fetchAndCacheUser = async (token: string) => {
     try {
       const res = await fetch('/api/auth/me', {
@@ -55,6 +52,15 @@ export default function LoginForm() {
     } catch (err) {
       console.warn('Failed to cache user profile:', err);
     }
+  };
+
+  const resolveRedirect = (raw: string): string => {
+    if (!raw) return '';
+    // Reject any auth page so we never loop
+    if (raw.startsWith('/login') || raw.startsWith('/register')) return '';
+    // Reject protocol-relative or absolute URLs
+    if (/^https?:|^\/\//.test(raw)) return '';
+    return raw;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -95,11 +101,14 @@ export default function LoginForm() {
         throw new Error(data.message || 'Sign in failed');
       }
 
-      if (data.token) localStorage.setItem('authToken', data.token);
+      // Persist auth state before any navigation
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('adminToken', data.token);
+      }
       if (data.userId) localStorage.setItem('userId', String(data.userId));
       if (data.role) localStorage.setItem('role', data.role);
 
-      // Cache user profile for form prefill
       if (data.token) {
         await fetchAndCacheUser(data.token);
       }
@@ -108,41 +117,44 @@ export default function LoginForm() {
 
       toast.success('Signed in successfully.');
 
-      if (redirectTo) {
-        const sep = redirectTo.includes('?') ? '&' : '?';
-        const url = /[?&]welcome=1(&|$)/.test(redirectTo)
-          ? redirectTo
-          : `${redirectTo}${sep}welcome=1`;
-        router.push(url);
+      // Sanitize destination — cannot be /login or /register
+      const safeRedirect = resolveRedirect(redirectTo);
+
+      if (safeRedirect) {
+        const sep = safeRedirect.includes('?') ? '&' : '?';
+        const url = /[?&]welcome=1(&|$)/.test(safeRedirect)
+          ? safeRedirect
+          : `${safeRedirect}${sep}welcome=1`;
+        window.location.href = url;
         return;
       }
 
+      // No safe redirect — route by role
       const role = (data.role ?? '').toString().toUpperCase();
       if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
-        router.push('/admin');
+        window.location.href = '/admin';
       } else {
-        router.push('/');
+        window.location.href = '/';
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign in failed';
       setError(message);
       toast.error(message);
-    } finally {
       setSubmitting(false);
     }
   };
 
   const inputClass =
-    'w-full pl-11 pr-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm';
-  const labelClass = 'block text-sm font-medium text-ink-900 mb-1.5';
+    'w-full pl-11 pr-4 py-3.5 bg-espresso-50 border border-espresso-200 rounded-xl text-espresso-950 placeholder-espresso-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm';
+  const labelClass = 'block text-sm font-semibold text-espresso-900 mb-1.5';
   const iconClass =
-    'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400';
+    'absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label htmlFor="email" className={labelClass}>
-          Email *
+          Email Address
         </label>
         <div className="relative">
           <Mail className={iconClass} />
@@ -161,9 +173,17 @@ export default function LoginForm() {
       </div>
 
       <div>
-        <label htmlFor="password" className={labelClass}>
-          Password *
-        </label>
+        <div className="flex justify-between items-center mb-1.5">
+          <label htmlFor="password" className={`${labelClass} mb-0`}>
+            Password
+          </label>
+          <Link
+            href="/forgot-password"
+            className="text-xs text-primary-600 hover:text-primary-700 font-semibold transition-colors"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <div className="relative">
           <Lock className={iconClass} />
           <input
@@ -180,7 +200,7 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-plum-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-espresso-400 hover:text-espresso-900 transition-colors"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -188,26 +208,17 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <div className="flex justify-end -mt-2">
-        <Link
-          href="/forgot-password"
-          className="text-xs text-plum-700 hover:text-plum-800 font-medium transition-colors"
-        >
-          Forgot password?
-        </Link>
-      </div>
-
       {error && (
-        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+        <div className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl">
           <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+          <p className="text-sm text-red-700 font-medium">{error}</p>
         </div>
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3.5 bg-plum-700 text-white font-semibold rounded-2xl transition-all hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 hover:-translate-y-px active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+        className="w-full py-3.5 bg-espresso-950 text-white font-bold rounded-xl transition-all hover:bg-primary-500 hover:text-espresso-950 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-espresso-950/10"
       >
         {submitting ? (
           <>
@@ -215,7 +226,7 @@ export default function LoginForm() {
             Signing in…
           </>
         ) : (
-          'Sign in'
+          'Sign In'
         )}
       </button>
     </form>

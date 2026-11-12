@@ -10,18 +10,18 @@ interface FooterLink {
 export default function Footer() {
   const year: number = new Date().getFullYear();
 
-  const quickLinks: FooterLink[] = [
+  const discoverLinks: FooterLink[] = [
     { label: 'Browse salons', href: '/salons' },
+    { label: 'Shop marketplace', href: '/marketplace' },
     { label: 'About us', href: '/about' },
-    { label: 'Pricing', href: '/pricing' },
     { label: 'Contact', href: '/contact' },
   ];
 
-  const popularServices: FooterLink[] = [
-    { label: 'Box braids', href: '/salons?q=box-braids' },
-    { label: 'Knotless braids', href: '/salons?q=knotless' },
-    { label: 'Cornrows', href: '/salons?q=cornrows' },
-    { label: 'Dreadlocks', href: '/salons?q=dreadlocks' },
+  const myAccountLinks: FooterLink[] = [
+    { label: 'My bookings', href: '/bookings' },
+    { label: 'My orders', href: '/orders' },
+    { label: 'Account settings', href: '/account' },
+    { label: 'Sign in', href: '/login' },
   ];
 
   const legal: FooterLink[] = [
@@ -31,43 +31,49 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative bg-plum-900 text-plum-100/70 overflow-hidden">
+    <footer className="relative bg-espresso-950 text-espresso-200/70 overflow-hidden">
+      {/* Gold hairline at the top of the footer */}
+      <div
+        aria-hidden="true"
+        className="h-[2px] w-full bg-gradient-to-r from-transparent via-primary-500/40 to-transparent"
+      />
+
       {/* Subtle ambient glow */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.10]">
-        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-rose-brand-500 rounded-full blur-3xl" />
-        <div className="absolute -bottom-32 right-1/4 w-80 h-80 bg-plum-400 rounded-full blur-3xl" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.06]">
+        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary-500 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 right-1/4 w-80 h-80 bg-espresso-600 rounded-full blur-3xl" />
       </div>
 
       <div className="container-custom py-16 relative">
         {/* Top: brand + links grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* Brand column */}
-          <div className="lg:col-span-5">
-            <Logo variant="light" className="mb-5" />
+          <div className="md:col-span-3 lg:col-span-5">
+            <Logo className="mb-5" size="md" />
 
-            <p className="text-sm leading-relaxed text-plum-100/70 max-w-sm">
-              The UK marketplace for braiding and beauty salons. Discover
-              trusted stylists, book appointments, and preview styles before
-              you commit.
+            <p className="text-sm leading-relaxed text-espresso-200/70 max-w-sm">
+              Book trusted braiding and beauty salons across the UK. Preview
+              styles on your photo with AI, then shop premium wigs and
+              accessories — all in one place.
             </p>
 
-            <div className="flex items-center gap-2 mt-6 text-xs text-plum-200/50">
+            <div className="flex items-center gap-2 mt-6 text-xs text-espresso-300/60">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span>Made and hosted in the UK</span>
             </div>
           </div>
 
-          {/* Quick links */}
+          {/* Discover links */}
           <div className="lg:col-span-3">
             <h4 className="text-white font-semibold mb-5 text-xs uppercase tracking-[0.15em]">
-              Explore
+              Discover
             </h4>
             <ul className="space-y-3 text-sm">
-              {quickLinks.map((link) => (
+              {discoverLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center text-plum-100/70 hover:text-white transition-colors"
+                    className="inline-flex items-center text-espresso-200/70 hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -76,29 +82,32 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Popular services */}
-          <div className="lg:col-span-4">
+          {/* Account links */}
+          <div className="lg:col-span-2">
             <h4 className="text-white font-semibold mb-5 text-xs uppercase tracking-[0.15em]">
-              Popular styles
+              My account
             </h4>
             <ul className="space-y-3 text-sm">
-              {popularServices.map((service) => (
-                <li key={service.label}>
+              {myAccountLinks.map((link) => (
+                <li key={link.label}>
                   <Link
-                    href={service.href}
-                    className="inline-flex items-center text-plum-100/70 hover:text-white transition-colors"
+                    href={link.href}
+                    className="inline-flex items-center text-espresso-200/70 hover:text-primary-400 transition-colors"
                   >
-                    {service.label}
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
+
+          {/* AI Try-On promo */}
+          
         </div>
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.08] mt-14 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <p className="text-plum-200/50">
+          <p className="text-espresso-300/60">
             © {year} KrownBraids. All rights reserved.
           </p>
 
@@ -107,7 +116,7 @@ export default function Footer() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-plum-200/50 hover:text-white transition-colors"
+                className="text-espresso-300/60 hover:text-primary-400 transition-colors"
               >
                 {item.label}
               </Link>

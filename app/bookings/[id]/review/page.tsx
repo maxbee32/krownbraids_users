@@ -1,3 +1,4 @@
+// app/bookings/[id]/review/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -14,6 +15,14 @@ interface BookingDetails {
   serviceName: string;
   salonName: string;
 }
+
+const RATING_FEEDBACK: Record<number, { label: string; emoji: string }> = {
+  1: { label: 'Poor', emoji: '😞' },
+  2: { label: 'Fair', emoji: '😕' },
+  3: { label: 'Good', emoji: '🙂' },
+  4: { label: 'Great', emoji: '😊' },
+  5: { label: 'Amazing', emoji: '🤩' },
+};
 
 export default function ReviewPage() {
   const params = useParams<{ id: string }>();
@@ -116,106 +125,150 @@ export default function ReviewPage() {
     }
   };
 
+  const activeRating = hoverRating || rating;
+  const feedback = RATING_FEEDBACK[activeRating];
+
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-cream-50 py-10 px-4">
-        <div className="container-custom max-w-lg mx-auto">
+      <main className="min-h-screen bg-espresso-50 py-12 px-4">
+        <div className="container-custom max-w-md mx-auto">
           <Link
             href={`/bookings/${bookingId}`}
-            className="inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors mb-6"
+            className="inline-flex items-center gap-1.5 text-sm text-espresso-500 hover:text-espresso-950 font-medium transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to booking
           </Link>
 
           {loading && (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center">
-              <Loader2 className="w-8 h-8 mx-auto animate-spin text-plum-700" />
-              <p className="mt-3 text-ink-500 text-sm">Loading…</p>
+            <div className="bg-white rounded-3xl border border-espresso-100 p-16 text-center">
+              <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary-500" />
+              <p className="mt-4 text-espresso-500 text-sm">Loading…</p>
             </div>
           )}
 
           {!loading && error && (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center">
+            <div className="bg-white rounded-3xl border border-espresso-100 p-12 text-center">
               <AlertCircle className="w-10 h-10 mx-auto text-red-500" />
-              <h1 className="mt-4 text-xl font-display font-bold text-ink-900">{error}</h1>
-              <Link href="/bookings" className="mt-6 inline-block px-5 py-2.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800">
+              <h1 className="mt-4 text-xl font-display font-bold text-espresso-950">
+                {error}
+              </h1>
+              <Link
+                href="/bookings"
+                className="mt-6 inline-block px-5 py-2.5 bg-espresso-950 text-white text-sm font-semibold rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-colors"
+              >
                 Back to my bookings
               </Link>
             </div>
           )}
 
           {!loading && booking && alreadyReviewed && (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center">
-              <Star className="w-10 h-10 mx-auto text-amber-400 fill-amber-400" />
-              <h1 className="mt-4 text-xl font-display font-bold text-ink-900">Already reviewed</h1>
-              <p className="mt-2 text-ink-500 text-sm">You&apos;ve already left a review for this booking.</p>
-              <Link href={`/bookings/${bookingId}`} className="mt-6 inline-block px-5 py-2.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800">
+            <div className="bg-white rounded-3xl border border-espresso-100 p-12 text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary-50 border border-primary-200 flex items-center justify-center">
+                <Star className="w-8 h-8 text-primary-500 fill-primary-500" />
+              </div>
+              <h1 className="mt-6 text-xl font-display font-bold text-espresso-950">
+                Already reviewed
+              </h1>
+              <p className="mt-2 text-espresso-500 text-sm">
+                You&apos;ve already left a review for this booking.
+              </p>
+              <Link
+                href={`/bookings/${bookingId}`}
+                className="mt-6 inline-block px-5 py-2.5 bg-espresso-950 text-white text-sm font-semibold rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-colors"
+              >
                 Back to booking
               </Link>
             </div>
           )}
 
           {!loading && booking && !alreadyReviewed && (
-            <div className="bg-white rounded-3xl border border-cream-200 shadow-[0_12px_40px_-20px_rgba(122,38,65,0.15)] overflow-hidden">
-              <div className="p-6 sm:p-8 border-b border-cream-200">
-                <p className="text-xs uppercase tracking-wider text-ink-400">Review your visit</p>
-                <h1 className="mt-1 text-2xl font-display font-bold text-ink-900">{booking.serviceName}</h1>
-                <p className="text-sm text-ink-500 mt-1">at {booking.salonName}</p>
+            <div className="bg-white rounded-[2rem] border border-espresso-100 shadow-[0_30px_80px_-30px_rgba(42,34,31,0.2)] overflow-hidden">
+              
+              {/* Header — clean, centered, no icons besides the star badge */}
+              <div className="px-6 sm:px-8 pt-10 pb-8 text-center border-b border-espresso-100">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary-50 border border-primary-200 flex items-center justify-center mb-5">
+                  <Star className="w-8 h-8 text-primary-500 fill-primary-500" />
+                </div>
+                <h1 className="text-2xl font-display font-bold text-espresso-950">
+                  How was your visit?
+                </h1>
+                <p className="text-sm text-espresso-500 mt-2">
+                  {booking.serviceName} · {booking.salonName}
+                </p>
               </div>
 
-              <div className="p-6 sm:p-8 space-y-6">
+              <div className="p-6 sm:p-8 space-y-8">
+                
+                {/* Stars */}
                 <div>
-                  <label className="block text-sm font-medium text-ink-900 mb-3">How was your experience?</label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
-                        className="transition-transform hover:scale-110"
-                        aria-label={`${star} star${star > 1 ? 's' : ''}`}
-                      >
-                        <Star
-                          className={`w-10 h-10 ${
-                            (hoverRating || rating) >= star
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-ink-300'
-                          } transition-colors`}
-                        />
-                      </button>
-                    ))}
+                  <div className="flex justify-center gap-3">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const isActive = activeRating >= star;
+                      return (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="transition-transform hover:scale-110 active:scale-95"
+                          aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                        >
+                          <Star
+                            className={`w-12 h-12 transition-all duration-150 ${
+                              isActive
+                                ? 'fill-primary-500 text-primary-500'
+                                : 'text-espresso-200'
+                            }`}
+                          />
+                        </button>
+                      );
+                    })}
                   </div>
-                  {rating > 0 && (
-                    <p className="mt-2 text-sm text-ink-500">
-                      {['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][rating]}
-                    </p>
-                  )}
+
+                  {/* Emoji feedback */}
+                  <div className="mt-4 h-8 text-center">
+                    {feedback && (
+                      <p className="text-sm font-semibold text-espresso-950">
+                        <span className="text-lg mr-1.5">{feedback.emoji}</span>
+                        {feedback.label}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
+                {/* Comment */}
                 <div>
-                  <label htmlFor="comment" className="block text-sm font-medium text-ink-900 mb-1.5">
-                    Tell us more <span className="text-ink-400 font-normal">(optional)</span>
+                  <label
+                    htmlFor="comment"
+                    className="block text-sm font-semibold text-espresso-900 mb-1.5"
+                  >
+                    Tell us more{' '}
+                    <span className="text-espresso-400 font-normal">(optional)</span>
                   </label>
                   <textarea
                     id="comment"
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    rows={5}
+                    rows={4}
                     maxLength={2000}
                     placeholder="What did you love? What could be better?"
-                    className="w-full px-4 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 placeholder-ink-400 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm resize-none"
+                    className="w-full px-4 py-3.5 bg-espresso-50 border border-espresso-200 rounded-2xl text-espresso-950 placeholder-espresso-400 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm resize-none"
                   />
-                  <p className="text-xs text-ink-400 mt-1">{comment.length}/2000</p>
+                  <div className="mt-1.5 flex justify-end">
+                    <p className="text-xs text-espresso-400">
+                      {comment.length}/2000
+                    </p>
+                  </div>
                 </div>
 
+                {/* Submit */}
                 <button
                   onClick={handleSubmit}
                   disabled={submitting || rating === 0}
-                  className="w-full py-3 bg-plum-700 text-white font-semibold rounded-xl hover:bg-plum-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-espresso-950 text-white font-bold rounded-full hover:bg-primary-500 hover:text-espresso-950 transition-all disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 shadow-lg shadow-espresso-950/10"
                 >
                   {submitting ? (
                     <>
@@ -223,7 +276,7 @@ export default function ReviewPage() {
                       Submitting…
                     </>
                   ) : (
-                    'Submit review'
+                    'Submit Review'
                   )}
                 </button>
               </div>

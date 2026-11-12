@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const GATEWAY_URL =
   process.env.BOOKING_SERVICE_URL ||
-  'https://2c9e-82-36-98-104.ngrok-free.app';
+  'https://60a6-82-36-98-104.ngrok-free.app';
 
 export async function GET(
   req: NextRequest,

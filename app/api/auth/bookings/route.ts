@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const BACKEND_URL =
   process.env.BOOKING_SERVICE_URL ||
   process.env.AUTH_SERVICE_URL ||        // ← fallback: you have this in .env
-  'https://2c9e-82-36-98-104.ngrok-free.app/bookingservice';
+  'https://60a6-82-36-98-104.ngrok-free.app/bookingservice';
 
 export async function POST(req: NextRequest) {
   try {

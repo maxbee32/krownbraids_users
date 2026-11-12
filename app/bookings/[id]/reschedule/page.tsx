@@ -1,3 +1,4 @@
+// app/bookings/[id]/reschedule/page.tsx
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -33,7 +34,6 @@ function buildDateOptions(daysAhead = 30) {
   for (let i = 0; i < daysAhead; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    // Local date string — avoids the UTC shift from toISOString()
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
@@ -155,7 +155,6 @@ export default function ReschedulePage() {
   const isCancelled = booking?.status?.toUpperCase() === 'CANCELLED';
 
   const handleSubmit = async () => {
-    console.log('[reschedule] submit', { newDate, newTime, submitting });
     if (!booking || submitting) return;
 
     if (!newDate || !newTime) {
@@ -215,32 +214,32 @@ export default function ReschedulePage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-cream-50 py-10 px-4">
+      <main className="min-h-screen bg-espresso-50 py-12 px-4">
         <div className="container-custom max-w-lg mx-auto">
           <Link
             href={`/bookings/${bookingId}`}
-            className="inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors mb-6"
+            className="inline-flex items-center gap-1.5 text-sm text-espresso-500 hover:text-espresso-950 font-medium transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to booking
           </Link>
 
           {loading && (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center">
-              <Loader2 className="w-8 h-8 mx-auto animate-spin text-plum-700" />
-              <p className="mt-3 text-ink-500 text-sm">Loading booking…</p>
+            <div className="bg-white rounded-3xl border border-espresso-100 p-16 text-center">
+              <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary-500" />
+              <p className="mt-4 text-espresso-500 text-sm">Loading booking…</p>
             </div>
           )}
 
           {!loading && error && (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center">
+            <div className="bg-white rounded-3xl border border-espresso-100 p-12 text-center">
               <AlertCircle className="w-10 h-10 mx-auto text-red-500" />
-              <h1 className="mt-4 text-xl font-display font-bold text-ink-900">
+              <h1 className="mt-4 text-xl font-display font-bold text-espresso-950">
                 {error}
               </h1>
               <Link
                 href="/bookings"
-                className="mt-6 inline-block px-5 py-2.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800"
+                className="mt-6 inline-block px-5 py-2.5 bg-espresso-950 text-white text-sm font-semibold rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-colors"
               >
                 Back to my bookings
               </Link>
@@ -248,23 +247,23 @@ export default function ReschedulePage() {
           )}
 
           {!loading && booking && (isCancelled || !isWithinWindow) && (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center">
-                <Lock className="w-7 h-7 text-amber-600" />
+            <div className="bg-white rounded-3xl border border-espresso-100 p-12 text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-amber-600" />
               </div>
-              <h1 className="mt-5 text-xl font-display font-bold text-ink-900">
+              <h1 className="mt-6 text-xl font-display font-bold text-espresso-950">
                 {isCancelled
                   ? 'This booking was cancelled'
                   : 'Changes are locked'}
               </h1>
-              <p className="mt-2 text-ink-500 text-sm max-w-sm mx-auto leading-relaxed">
+              <p className="mt-2 text-espresso-500 text-sm max-w-sm mx-auto leading-relaxed">
                 {isCancelled
                   ? 'You cannot reschedule a cancelled booking.'
                   : 'Bookings can only be rescheduled at least 48 hours before the appointment.'}
               </p>
               <Link
                 href={`/bookings/${booking.id}`}
-                className="mt-6 inline-block px-5 py-2.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800"
+                className="mt-6 inline-block px-5 py-2.5 bg-espresso-950 text-white text-sm font-semibold rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-colors"
               >
                 Back to booking
               </Link>
@@ -272,50 +271,53 @@ export default function ReschedulePage() {
           )}
 
           {!loading && booking && !isCancelled && isWithinWindow && (
-            <div className="bg-white rounded-3xl border border-cream-200 shadow-[0_12px_40px_-20px_rgba(122,38,65,0.15)] overflow-hidden">
-              <div className="p-6 sm:p-8 border-b border-cream-200">
-                <p className="text-xs uppercase tracking-wider text-ink-400">
+            <div className="bg-white rounded-3xl border border-espresso-100 shadow-[0_20px_60px_-15px_rgba(42,34,31,0.1)] overflow-hidden">
+              
+              {/* Header */}
+              <div className="p-6 sm:p-8 border-b border-espresso-100">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary-600 mb-1">
                   Booking #{booking.id}
                 </p>
-                <h1 className="mt-1 text-2xl font-display font-bold text-ink-900">
-                  Reschedule appointment
+                <h1 className="text-2xl font-display font-bold text-espresso-950">
+                  Reschedule Appointment
                 </h1>
-                <p className="text-sm text-ink-500 mt-1">
+                <p className="text-sm text-espresso-500 mt-1">
                   {booking.serviceName} at {booking.salonName}
                 </p>
               </div>
 
               {/* Current appointment */}
               <div className="px-6 sm:px-8 pt-6">
-                <div className="flex items-start gap-3 p-4 rounded-2xl bg-cream-100 border border-cream-200">
-                  <Calendar className="w-4 h-4 text-ink-500 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start gap-3 p-4 rounded-2xl bg-espresso-50 border border-espresso-100">
+                  <Calendar className="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
-                    <p className="text-xs uppercase tracking-wider text-ink-400 mb-1">
-                      Current time
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-espresso-400 mb-1">
+                      Current appointment
                     </p>
-                    <p className="font-medium text-ink-900">
+                    <p className="font-semibold text-espresso-950">
                       {formatDate(booking.date)} · {booking.time}
                     </p>
                   </div>
                 </div>
               </div>
 
+              {/* Form */}
               <div className="p-6 sm:p-8 space-y-5">
                 <div>
                   <label
                     htmlFor="newDate"
-                    className="block text-sm font-medium text-ink-900 mb-1.5"
+                    className="block text-sm font-semibold text-espresso-900 mb-1.5"
                   >
                     New date
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400 pointer-events-none" />
                     <select
                       id="newDate"
                       value={newDate}
                       onChange={(e) => setNewDate(e.target.value)}
                       disabled={submitting}
-                      className="w-full pl-11 pr-10 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm appearance-none cursor-pointer"
+                      className="w-full pl-11 pr-10 py-3.5 bg-espresso-50 border border-espresso-200 rounded-xl text-espresso-950 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm appearance-none cursor-pointer"
                     >
                       <option value="">Select a date…</option>
                       {dateOptions.map((opt) => (
@@ -330,18 +332,18 @@ export default function ReschedulePage() {
                 <div>
                   <label
                     htmlFor="newTime"
-                    className="block text-sm font-medium text-ink-900 mb-1.5"
+                    className="block text-sm font-semibold text-espresso-900 mb-1.5"
                   >
                     New time
                   </label>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-espresso-400 pointer-events-none" />
                     <select
                       id="newTime"
                       value={newTime}
                       onChange={(e) => setNewTime(e.target.value)}
                       disabled={submitting}
-                      className="w-full pl-11 pr-10 py-3 bg-white border border-cream-200 rounded-xl text-ink-900 focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm appearance-none cursor-pointer"
+                      className="w-full pl-11 pr-10 py-3.5 bg-espresso-50 border border-espresso-200 rounded-xl text-espresso-950 focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-sm appearance-none cursor-pointer"
                     >
                       <option value="">Select a time…</option>
                       {timeOptions.map((opt) => (
@@ -353,10 +355,10 @@ export default function ReschedulePage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-3 pt-4">
                   <Link
                     href={`/bookings/${booking.id}`}
-                    className="flex-1 py-3 text-sm font-semibold text-ink-700 border border-cream-300 rounded-xl hover:bg-cream-50 transition-colors text-center"
+                    className="flex-1 py-3.5 text-sm font-bold text-espresso-700 border border-espresso-200 rounded-xl hover:bg-espresso-50 transition-colors text-center"
                   >
                     Cancel
                   </Link>
@@ -364,7 +366,7 @@ export default function ReschedulePage() {
                     type="button"
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 py-3 text-sm font-semibold text-white bg-plum-700 rounded-xl hover:bg-plum-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                    className="flex-1 py-3.5 text-sm font-bold text-white bg-espresso-950 rounded-xl hover:bg-primary-500 hover:text-espresso-950 transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 shadow-lg shadow-espresso-950/10"
                   >
                     {submitting ? (
                       <>
@@ -372,7 +374,7 @@ export default function ReschedulePage() {
                         Rescheduling…
                       </>
                     ) : (
-                      'Confirm new time'
+                      'Confirm New Time'
                     )}
                   </button>
                 </div>

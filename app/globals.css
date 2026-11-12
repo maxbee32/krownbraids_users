@@ -1,90 +1,85 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
-
 @import "tailwindcss";
 
 @theme {
   /* ─────────────────────────────────────────────────────────────
-     Palette: warm rose + plum + soft cream
-     - Plum:   deep, sophisticated primary (buttons, headings)
-     - Rose:   feminine accent (CTAs, highlights)
-     - Cream:  warm neutral backgrounds
+     Palette: Uniform with the Krownbraids Logo (Black, Gold, Cream)
      ───────────────────────────────────────────────────────────── */
 
-  /* Plum — deep, elegant primary scale */
-  --color-plum-50:  #fdf4f7;
-  --color-plum-100: #fbe8ef;
-  --color-plum-200: #f5d0dd;
-  --color-plum-300: #ecaabc;
-  --color-plum-400: #de7d99;
-  --color-plum-500: #cc5578;
-  --color-plum-600: #b33a5f;
-  --color-plum-700: #962c4d;   /* primary button */
-  --color-plum-800: #7a2641;
-  --color-plum-900: #5c1d32;
+  /* Primary — The Gold from your logo */
+  --color-primary-50:  #fdf8f3;
+  --color-primary-100: #faf0e6;
+  --color-primary-200: #f5e0cc;
+  --color-primary-300: #ecc9a8;
+  --color-primary-400: #e0ad7a;
+  --color-primary-500: #d4914c;   /* Core Gold */
+  --color-primary-600: #c47a38;   /* Hover Gold */
+  --color-primary-700: #a4642e;
+  --color-primary-800: #85512a;
+  --color-primary-900: #6d4326;
 
-  /* Rose — warm accent for CTAs */
-  --color-rose-brand-50:  #fff1f4;
-  --color-rose-brand-100: #ffe0e7;
-  --color-rose-brand-200: #ffc7d4;
-  --color-rose-brand-300: #ffa0b5;
-  --color-rose-brand-400: #ff6b8f;
-  --color-rose-brand-500: #f43f6a;   /* hover */
-  --color-rose-brand-600: #e11d48;   /* primary CTA */
-  --color-rose-brand-700: #be123c;
-  --color-rose-brand-800: #9f1239;
-  --color-rose-brand-900: #881337;
+  /* Secondary — The Black from your logo */
+  --color-secondary-50:  #f7f7f7;
+  --color-secondary-100: #e3e3e3;
+  --color-secondary-200: #c8c8c8;
+  --color-secondary-300: #a4a4a4;
+  --color-secondary-400: #818181;
+  --color-secondary-500: #666666;
+  --color-secondary-600: #515151;
+  --color-secondary-700: #434343;
+  --color-secondary-800: #383838;
+  --color-secondary-900: #2e2e2e;
+  --color-secondary-950: #1a1a1a; /* Core Black */
 
-  /* Cream — warm neutral backgrounds */
+  /* Accent — Warm Orange (for alerts/badges if needed) */
+  --color-accent-500: #f57232;
+
+  /* Cream — Warm neutral backgrounds */
   --color-cream-25:  #fffefb;
   --color-cream-50:  #fdf9f3;
   --color-cream-100: #faf3e8;
   --color-cream-200: #f2e8d8;
   --color-cream-300: #e8d9c3;
 
-  /* Ink — warm charcoal for text */
-  --color-ink-50:  #faf8f6;
-  --color-ink-100: #f2eeea;
-  --color-ink-200: #e4ddd6;
-  --color-ink-300: #cfc4ba;
-  --color-ink-400: #a89a8c;
-  --color-ink-500: #7d6f61;
-  --color-ink-600: #5a4f44;
-  --color-ink-700: #3d352e;
-  --color-ink-800: #2a2420;
-  --color-ink-900: #1a1512;
 
-  /* Alias primary-* to plum-* for backward compat */
-  --color-primary-50:  var(--color-plum-50);
-  --color-primary-100: var(--color-plum-100);
-  --color-primary-200: var(--color-plum-200);
-  --color-primary-300: var(--color-plum-300);
-  --color-primary-400: var(--color-plum-400);
-  --color-primary-500: var(--color-plum-500);
-  --color-primary-600: var(--color-plum-600);
-  --color-primary-700: var(--color-plum-700);
-  --color-primary-800: var(--color-plum-800);
-  --color-primary-900: var(--color-plum-900);
+  --color-coffee-50:  #fbf8f5;
+  --color-coffee-100: #f6efe9;
+  --color-coffee-200: #ecdcd1;
+  --color-coffee-300: #dfc1b0;
+  --color-coffee-400: #cca08b;
+  --color-coffee-500: #b87c65;
+  --color-coffee-600: #a66753;
+  --color-coffee-700: #8b5041;
+  --color-coffee-800: #734336;
+  --color-coffee-900: #4a2b23;
+  --color-coffee-950: #2e1a15;
 
-  /* Remap amber-* to rose accent so existing markup works */
-  --color-amber-50:  var(--color-rose-brand-50);
-  --color-amber-100: var(--color-rose-brand-100);
-  --color-amber-200: var(--color-rose-brand-200);
-  --color-amber-300: var(--color-rose-brand-300);
-  --color-amber-400: var(--color-rose-brand-400);
-  --color-amber-500: var(--color-rose-brand-500);
-  --color-amber-600: var(--color-rose-brand-600);
-  --color-amber-700: var(--color-rose-brand-700);
-  --color-amber-800: var(--color-rose-brand-800);
-  --color-amber-900: var(--color-rose-brand-900);
+  /* Espresso — premium warm brown for the header */
+  --color-espresso-50:  #f9f5f0;
+  --color-espresso-100: #f0e8de;
+  --color-espresso-200: #ddcebb;
+  --color-espresso-300: #c4ad93;
+  --color-espresso-400: #a58868;
+  --color-espresso-500: #8b6a4a;
+  --color-espresso-600: #6f5239;
+  --color-espresso-700: #57402d;
+  --color-espresso-800: #3e2d21;
+  --color-espresso-900: #2a221f;   /* core background */
+  --color-espresso-950: #1a1410;   /* hover/darker states */
 
-  /* Remap stone-* to cream so bg-stone-50 etc. become warm cream */
-  --color-stone-50:  var(--color-cream-50);
-  --color-stone-100: var(--color-cream-100);
-  --color-stone-200: var(--color-cream-200);
-  --color-stone-300: var(--color-cream-300);
-
+  /* Sora font setup */
   --font-display: 'Sora', system-ui, sans-serif;
   --font-body: 'Sora', system-ui, sans-serif;
+  
+  /* Header Height Variables for Mobile Menu */
+  --header-h: 70px;
+}
+
+/* Tablet/Desktop Header Height */
+@media (min-width: 640px) {
+  :root {
+    --header-h: 82px;
+  }
 }
 
 @layer base {
@@ -95,7 +90,7 @@
 
   body {
     background-color: var(--color-cream-50);
-    color: var(--color-ink-800);
+    color: var(--color-secondary-900);
     font-family: var(--font-body);
     margin: 0;
     padding: 0;
@@ -108,6 +103,19 @@
     font-family: var(--font-display);
     letter-spacing: -0.025em;
     font-weight: 700;
+  }
+
+  /* ✅ FIX: Prevent image dragging/saving ONLY on protected images */
+  .protected-image {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+  }
+  
+  /* Make sure standard images (like the logo) are interactive */
+  img {
+    pointer-events: auto;
   }
 }
 
@@ -135,26 +143,27 @@
     }
   }
 
-  /* Primary button — deep plum */
+  /* Primary button — Gold with Black text */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
-    background-color: var(--color-plum-700);
-    color: white;
+    background-color: var(--color-primary-500);
+    color: var(--color-secondary-950);
     font-weight: 600;
     font-size: 0.875rem;
-    border-radius: 0.75rem;
-    transition: all 0.15s ease;
+    border-radius: 9999px; /* Pill shape */
+    transition: all 0.2s ease;
     cursor: pointer;
     border: none;
     text-decoration: none;
   }
 
   .btn-primary:hover {
-    background-color: var(--color-plum-800);
+    background-color: var(--color-primary-600);
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px -4px rgba(196, 122, 56, 0.5);
   }
 
   .btn-primary:active {
@@ -166,74 +175,16 @@
     cursor: not-allowed;
     transform: none;
   }
-
-  /* Accent button — rose */
-  .btn-accent {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--color-rose-brand-600);
-    color: white;
-    font-weight: 600;
-    font-size: 0.875rem;
-    border-radius: 0.75rem;
-    transition: all 0.15s ease;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-  }
-
-  .btn-accent:hover {
-    background-color: var(--color-rose-brand-700);
-    transform: translateY(-1px);
-  }
-
-  .btn-accent:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  .btn-accent:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* Secondary button */
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    background-color: transparent;
-    color: var(--color-plum-700);
-    font-weight: 600;
-    font-size: 0.875rem;
-    border: 1.5px solid var(--color-plum-200);
-    border-radius: 0.75rem;
-    transition: all 0.15s ease;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .btn-secondary:hover {
-    background-color: var(--color-plum-50);
-    border-color: var(--color-plum-400);
-  }
-
+  
   .card {
     background-color: white;
-    border: 1px solid var(--color-cream-200);
+    border: 1px solid var(--color-secondary-100);
     border-radius: 1rem;
-    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-  }
-
-  .card:hover {
-    border-color: var(--color-cream-300);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
 
   .card-hover:hover {
-    box-shadow: 0 20px 40px -20px rgba(122, 38, 65, 0.15);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
 }
@@ -249,12 +200,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-plum-200);
+  background-color: var(--color-secondary-200);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-plum-400);
+  background-color: var(--color-secondary-400);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -273,9 +224,4 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-
-  .text-primary { color: var(--color-plum-700); }
-  .bg-cream     { background-color: var(--color-cream-50); }
-  .bg-cream-100 { background-color: var(--color-cream-100); }
-  .border-cream { border-color: var(--color-cream-200); }
 }

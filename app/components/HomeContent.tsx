@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Toaster } from 'react-hot-toast';
@@ -9,15 +9,36 @@ import {
   Search,
   X,
   Check,
+  Sparkles,
+  Calendar,
   Scissors,
-  MapPin,
-  Wand2,
+  Eye,
 } from 'lucide-react';
 import SalonCard from './SalonCard';
 import MarketplaceSection from './MarketplaceSection';
 import AITryOn from './AITryOn';
 import { Salon } from '../../lib/types';
-import FeaturedServices from './FeaturedServices';
+
+const HERO_SLIDES = [
+  {
+    src: '/assets/img/hero-1.jpg',
+    alt: 'Woman with beautiful knotless braids',
+  },
+  {
+    src: '/assets/img/hero-2.jpg',
+    alt: 'Woman with box braids in a salon',
+  },
+  {
+    src: '/assets/img/hero-3.jpg',
+    alt: 'Woman with long goddess braids',
+  },
+  {
+    src: '/assets/img/hero-4.jpg',
+    alt: 'Woman smiling with fresh braids',
+  },
+];
+
+const SLIDE_INTERVAL_MS = 5000;
 
 export default function HomeContent() {
   const router = useRouter();
@@ -25,6 +46,9 @@ export default function HomeContent() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAITryOn, setShowAITryOn] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isHoveringHero, setIsHoveringHero] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -47,6 +71,24 @@ export default function HomeContent() {
     load();
   }, []);
 
+  useEffect(() => {
+    if (isHoveringHero) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
+    intervalRef.current = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, SLIDE_INTERVAL_MS);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isHoveringHero]);
+
+  const handleSearchSubmit = () => {
+    const q = searchTerm.trim();
+    router.push(q ? `/salons?q=${encodeURIComponent(q)}` : '/salons');
+  };
+
   const filteredSalons = salons.filter((salon) => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase().trim();
@@ -58,18 +100,6 @@ export default function HomeContent() {
     );
   });
 
-  const handleSearchSubmit = () => {
-    const q = searchTerm.trim();
-    router.push(q ? `/salons?q=${encodeURIComponent(q)}` : '/salons');
-  };
-
-  const popularSearches = [
-    { label: 'Braids', type: 'style' as const },
-    { label: 'Knotless', type: 'style' as const },
-    { label: 'London', type: 'city' as const },
-    { label: 'Manchester', type: 'city' as const },
-  ];
-
   return (
     <>
       <Toaster
@@ -77,158 +107,235 @@ export default function HomeContent() {
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#3d352e',
+            background: '#2a221f',
             color: '#fff',
             borderRadius: '12px',
             padding: '14px 16px',
             fontSize: '14px',
             fontFamily: 'Sora, system-ui, sans-serif',
           },
-          success: {
-            iconTheme: { primary: '#e11d48', secondary: '#fff' },
-          },
-          error: {
-            iconTheme: { primary: '#ef4444', secondary: '#fff' },
-          },
+          success: { iconTheme: { primary: '#d4914c', secondary: '#fff' } },
+          error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
         }}
       />
 
       {/* ─────────── HERO ─────────── */}
-      <section className="relative bg-cream-50 border-b border-cream-200 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute inset-0 bg-gradient-to-b from-rose-brand-50/50 via-cream-50 to-cream-50" />
-          <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[1200px] h-[1000px] opacity-[0.35]">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-brand-200 via-plum-100 to-transparent blur-3xl" />
-          </div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[520px] opacity-[0.18]">
-            <div className="absolute inset-0 rounded-[50%] bg-gradient-to-tr from-plum-300 via-rose-brand-200 to-transparent blur-3xl" />
-          </div>
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[760px] h-[380px] opacity-[0.22]">
-            <div className="absolute inset-0 rounded-[50%] bg-gradient-to-t from-rose-brand-200 to-transparent blur-2xl" />
-          </div>
-          <div
-            className="absolute inset-0 opacity-[0.35] mix-blend-soft-light"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 1px 1px, #7a2641 1px, transparent 0)',
-              backgroundSize: '32px 32px',
-            }}
-          />
+      <section
+        className="relative overflow-hidden bg-espresso-950 min-h-[700px] flex items-center"
+        onMouseEnter={() => setIsHoveringHero(true)}
+        onMouseLeave={() => setIsHoveringHero(false)}
+      >
+        <div className="absolute inset-0 bg-espresso-950 -z-10" />
+
+        <div className="absolute inset-0 z-0">
+          {HERO_SLIDES.map((slide, index) => (
+            <div
+              key={slide.src}
+              className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out ${
+                index === activeSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            >
+              <Image
+                src={slide.src}
+                alt={slide.alt}
+                fill
+                priority={index === 0}
+                className="object-cover"
+                sizes="100vw"
+                unoptimized
+              />
+            </div>
+          ))}
+          <div className="absolute inset-0 z-10 bg-gradient-to-b from-espresso-950/85 via-espresso-950/70 to-espresso-950/95" />
         </div>
 
-        <div className="relative container-custom py-16 sm:py-20 md:py-24 lg:py-28">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-ink-900 leading-[1.1] tracking-tight">
-              Find a salon
+        <div className="relative z-20 container-custom py-24 sm:py-32 w-full text-center">
+          <div className="max-w-4xl mx-auto">
+            
+
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-white leading-[0.95] tracking-tight">
+              Your next style,
               <br />
-              <span className="bg-gradient-to-r from-plum-700 via-rose-brand-600 to-plum-700 bg-clip-text text-transparent">
-                near you.
+              <span className="bg-gradient-to-r from-primary-300 via-primary-400 to-primary-200 bg-clip-text text-transparent">
+                before you book.
               </span>
             </h1>
 
-            <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-ink-500 max-w-xl mx-auto leading-relaxed px-2">
-              Discover trusted braiding and beauty salons across the UK —
-              search by name, town, or postcode.
+            <p className="mt-7 sm:mt-8 text-base sm:text-lg text-white/85 max-w-2xl mx-auto leading-relaxed">
+              Preview a braid style on your photo, then book a trusted salon to bring it to life.
             </p>
 
-            <div className="mt-8 sm:mt-10 max-w-xl mx-auto px-1">
-              <div className="relative group">
-                <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-ink-400 group-focus-within:text-plum-700 transition-colors pointer-events-none z-10" />
-
-                <input
-                  type="text"
-                  placeholder="Search salons, towns, or postcodes…"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleSearchSubmit();
-                    }
-                  }}
-                  className="w-full pl-11 sm:pl-14 pr-4 sm:pr-32 py-3.5 sm:py-5 bg-white border border-cream-200 rounded-2xl text-ink-900 placeholder-ink-400 shadow-[0_8px_28px_-10px_rgba(122,38,65,0.18)] focus:border-plum-300 focus:ring-4 focus:ring-plum-100 transition-all outline-none text-sm sm:text-base"
-                />
-
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 sm:right-[110px] top-1/2 -translate-y-1/2 p-1.5 hover:bg-cream-100 rounded-full transition-colors z-10"
-                    aria-label="Clear search"
-                  >
-                    <X className="w-4 h-4 text-ink-500" />
-                  </button>
-                )}
-
-                <button
-                  onClick={handleSearchSubmit}
-                  className="hidden sm:block absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800 transition-colors shadow-sm z-10"
-                >
-                  Search
-                </button>
-              </div>
-
+            <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={handleSearchSubmit}
-                className="mt-3 w-full sm:hidden py-3.5 bg-plum-700 text-white text-sm font-semibold rounded-xl hover:bg-plum-800 transition-colors shadow-sm"
+                onClick={() => setShowAITryOn(true)}
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-400 to-primary-500 text-espresso-950 font-bold text-base rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-1 active:translate-y-0 transition-all duration-300"
               >
-                Search
+                <Scissors className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                Try on a style
               </button>
 
-              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                <span className="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">
-                  Popular searches
-                </span>
+              <button
+                onClick={() => {
+                  const el = document.getElementById('salon-search');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold text-base rounded-2xl hover:bg-white/20 hover:-translate-y-1 active:translate-y-0 transition-all duration-300"
+              >
+                <Search className="w-5 h-5" />
+                Find a salon
+              </button>
+            </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-                  {popularSearches.map((tag) => (
-                    <button
-                      key={tag.label}
-                      onClick={() => {
-                        setSearchTerm(tag.label);
-                        router.push(`/salons?q=${encodeURIComponent(tag.label)}`);
-                      }}
-                      className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-cream-200 text-ink-600 hover:bg-plum-50 hover:text-plum-700 hover:border-plum-300 transition-all shadow-sm hover:shadow"
-                    >
-                      {tag.type === 'style' ? (
-                        <Scissors className="w-3 h-3 text-rose-brand-500 group-hover:text-plum-600 transition-colors" />
-                      ) : (
-                        <MapPin className="w-3 h-3 text-rose-brand-500 group-hover:text-plum-600 transition-colors" />
-                      )}
-                      <span className="text-xs font-medium">{tag.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-white/50">
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                Trusted UK salons
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                Free preview
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                No signup to browse
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      <FeaturedServices />
-
-      {/* ─────────── SALONS ─────────── */}
-      <section className="container-custom py-12 sm:py-16">
-        <div className="flex items-end justify-between mb-6 sm:mb-8 gap-4">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.15em] text-rose-brand-600 uppercase mb-2">
-              {searchTerm ? 'Results' : 'Discover'}
+      {/* ─────────── HOW IT WORKS ─────────── */}
+      <section className="bg-white border-b border-espresso-100">
+        <div className="container-custom py-16 sm:py-20">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold tracking-[0.15em] text-primary-600 uppercase mb-2">
+              How it works
             </p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-ink-900">
-              {searchTerm ? 'Search results' : 'Featured salons'}
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-espresso-950">
+              From inspiration to appointment
             </h2>
-            <p className="text-xs sm:text-sm text-ink-500 mt-1.5 sm:mt-2">
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
+            <div className="text-center group">
+              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-espresso-50 border border-espresso-100 flex items-center justify-center group-hover:bg-primary-50 group-hover:border-primary-200 transition-colors">
+                <Scissors className="w-7 h-7 text-primary-600" />
+              </div>
+              <p className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1">
+                Step 1
+              </p>
+              <h3 className="text-xl font-display font-bold text-espresso-950 mb-2">
+                Preview the style
+              </h3>
+              <p className="text-sm text-espresso-500 leading-relaxed max-w-xs mx-auto">
+                See any braid style on your photo in seconds.
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-espresso-50 border border-espresso-100 flex items-center justify-center group-hover:bg-primary-50 group-hover:border-primary-200 transition-colors">
+                <Search className="w-7 h-7 text-primary-600" />
+              </div>
+              <p className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1">
+                Step 2
+              </p>
+              <h3 className="text-xl font-display font-bold text-espresso-950 mb-2">
+                Find your salon
+              </h3>
+              <p className="text-sm text-espresso-500 leading-relaxed max-w-xs mx-auto">
+                Browse verified UK braiders and stylists in your area.
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-espresso-50 border border-espresso-100 flex items-center justify-center group-hover:bg-primary-50 group-hover:border-primary-200 transition-colors">
+                <Calendar className="w-7 h-7 text-primary-600" />
+              </div>
+              <p className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1">
+                Step 3
+              </p>
+              <h3 className="text-xl font-display font-bold text-espresso-950 mb-2">
+                Book with confidence
+              </h3>
+              <p className="text-sm text-espresso-500 leading-relaxed max-w-xs mx-auto">
+                Book your appointment knowing exactly how the style will look.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── SALON SEARCH ─────────── */}
+      <section id="salon-search" className="container-custom py-16 sm:py-20">
+        <div className="max-w-3xl mx-auto text-center mb-10">
+          <p className="text-xs font-semibold tracking-[0.15em] text-primary-600 uppercase mb-2">
+            Ready to book?
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-espresso-950">
+            Find a salon near you
+          </h2>
+          <p className="text-base text-espresso-500 mt-3 max-w-xl mx-auto">
+            Search trusted braiding and beauty salons across the UK by name, town, or postcode.
+          </p>
+        </div>
+
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-espresso-400 group-focus-within:text-primary-500 transition-colors pointer-events-none z-10" />
+
+            <input
+              type="text"
+              placeholder="Search salons, towns, or postcodes…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearchSubmit();
+                }
+              }}
+              className="w-full pl-14 pr-32 py-4 sm:py-5 bg-white border border-espresso-200 rounded-2xl text-espresso-950 placeholder-espresso-400 shadow-[0_8px_30px_-12px_rgba(42,34,31,0.12)] focus:border-primary-400 focus:ring-4 focus:ring-primary-500/15 transition-all outline-none text-base"
+            />
+
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-[105px] top-1/2 -translate-y-1/2 p-1.5 hover:bg-espresso-100 rounded-full transition-colors z-10"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4 text-espresso-500" />
+              </button>
+            )}
+
+            <button
+              onClick={handleSearchSubmit}
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-3 bg-primary-500 text-espresso-950 text-sm font-semibold rounded-xl hover:bg-primary-400 transition-colors shadow-sm z-10"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-end justify-between mb-8 gap-4">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.15em] text-primary-600 uppercase mb-2">
+              {searchTerm ? 'Results' : 'Featured'}
+            </p>
+            <h3 className="text-2xl sm:text-3xl font-display font-bold text-espresso-950">
+              {searchTerm ? 'Matching salons' : 'Trusted salons'}
+            </h3>
+            <p className="text-sm text-espresso-500 mt-1.5">
               {loading
                 ? 'Loading salons…'
                 : `${filteredSalons.length} ${
                     filteredSalons.length === 1 ? 'salon' : 'salons'
-                  } available${searchTerm ? ` for "${searchTerm}"` : ''}`}
+                  }${searchTerm ? ` for "${searchTerm}"` : ' available'}`}
             </p>
           </div>
-
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors flex-shrink-0"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-primary-700 hover:text-primary-800 font-medium transition-colors flex-shrink-0"
             >
               Clear search
             </button>
@@ -236,164 +343,57 @@ export default function HomeContent() {
         </div>
 
         {loading ? (
-          <div className="text-center py-20">
-            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-cream-200 border-t-plum-700 mx-auto" />
-            <p className="text-ink-500 mt-4 text-sm">Loading salons…</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="rounded-2xl bg-espresso-100 animate-pulse aspect-[4/5]"
+              />
+            ))}
           </div>
         ) : filteredSalons.length === 0 ? (
-          <div className="text-center py-20 sm:py-24 px-4">
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-plum-50 border border-plum-100 flex items-center justify-center">
-              <Search className="w-7 h-7 text-plum-400" />
+          <div className="text-center py-16 px-4 bg-white rounded-3xl border border-espresso-100">
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-primary-50 border border-primary-100 flex items-center justify-center">
+              <Search className="w-7 h-7 text-primary-400" />
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-semibold text-ink-900">
+            <h3 className="text-xl font-display font-semibold text-espresso-950">
               {searchTerm ? 'No salons found' : 'No salons yet'}
             </h3>
-            <p className="text-ink-500 mt-2 max-w-sm mx-auto text-sm">
+            <p className="text-espresso-500 mt-2 max-w-sm mx-auto text-sm">
               {searchTerm
                 ? 'Try a different name, town, or postcode.'
                 : 'Check back soon — new salons are joining every week.'}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {filteredSalons.map((salon) => (
-              <SalonCard key={salon.id} salon={salon} />
-            ))}
-          </div>
-        )}
-      </section>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSalons.slice(0, 6).map((salon) => (
+                <SalonCard key={salon.id} salon={salon} />
+              ))}
+            </div>
 
-      {/* ─────────── STYLE PREVIEW SHOWCASE ─────────── */}
-      <section className="container-custom pb-16 sm:pb-20">
-        <div className="relative overflow-hidden rounded-[2rem] bg-plum-900">
-          <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-            <div className="absolute -top-40 -right-20 w-[500px] h-[500px] rounded-full bg-rose-brand-500/25 blur-3xl" />
-            <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] rounded-full bg-plum-400/20 blur-3xl" />
-            <div
-              className="absolute inset-0 opacity-[0.05]"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-                backgroundSize: '28px 28px',
-              }}
-            />
-            <div
-              className="absolute inset-0 opacity-[0.03]"
-              style={{
-                backgroundImage:
-                  'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-                backgroundSize: '80px 80px',
-              }}
-            />
-          </div>
-
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 p-6 sm:p-10 lg:p-16 items-center">
-            {/* LEFT — copy */}
-            <div className="order-2 lg:order-1">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-white leading-[1.05] tracking-tight">
-                See it on{' '}
-                <span className="bg-gradient-to-r from-rose-brand-300 via-rose-brand-200 to-plum-200 bg-clip-text text-transparent">
-                  you.
-                </span>
-                <br />
-                <span className="text-plum-200/90">Before you commit.</span>
-              </h2>
-
-              <p className="mt-5 sm:mt-6 text-sm sm:text-base text-plum-100/70 max-w-md leading-relaxed">
-                Stop guessing which braids will suit you. Upload a photo, pick
-                a style, and preview the result — no booking required, no
-                pressure.
-              </p>
-
-              <div className="mt-7 sm:mt-9 grid grid-cols-2 gap-3 sm:gap-4 max-w-md">
-                {[
-                  { label: 'Any photo', desc: 'Upload or use camera' },
-                  { label: 'Fast preview', desc: 'Results in seconds' },
-                  { label: 'Save to gallery', desc: 'Keep your favourites' },
-                  { label: 'No commitment', desc: 'No booking required' },
-                ].map((f) => (
-                  <div
-                    key={f.label}
-                    className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
-                  >
-                    <div className="w-1 h-full min-h-[2rem] rounded-full bg-gradient-to-b from-rose-brand-400 to-plum-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[11px] sm:text-xs font-semibold text-white leading-tight">
-                        {f.label}
-                      </p>
-                      <p className="text-[10px] sm:text-[11px] text-white/50 mt-0.5 leading-tight">
-                        {f.desc}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 sm:mt-10">
+            {filteredSalons.length > 6 && (
+              <div className="text-center mt-10">
                 <button
-                  onClick={() => setShowAITryOn(true)}
-                  className="group inline-flex items-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-gradient-to-r from-white to-plum-50 text-plum-900 font-semibold rounded-2xl shadow-2xl shadow-black/20 hover:shadow-3xl hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm sm:text-base"
+                  onClick={() => router.push('/salons')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-espresso-950 text-white font-semibold rounded-xl hover:bg-espresso-800 transition-all"
                 >
-                  <Wand2 className="w-4 h-4 text-rose-brand-500 group-hover:rotate-12 transition-transform" />
-                  Preview a style
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  View all {filteredSalons.length} salons
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-                <p className="mt-3 text-[11px] text-white/40 flex items-center gap-1.5">
-                  <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                  Takes ~10 seconds.
-                </p>
               </div>
-            </div>
-
-            {/* RIGHT — visual */}
-            <div className="order-1 lg:order-2 relative">
-              <div className="relative mx-auto w-full max-w-[380px]">
-                <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-rose-brand-500/30 via-plum-400/20 to-transparent blur-2xl" />
-
-                <div className="relative aspect-[3/4] rounded-[1.5rem] overflow-hidden border-2 border-white/15 shadow-2xl shadow-black/40">
-                  <Image
-                    src="/assets/img/Braided Beauty Salon Selfie.png"
-                    alt="Style preview"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 90vw, 380px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-plum-900/60 via-transparent to-transparent" />
-
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <p className="text-[10px] uppercase tracking-wider text-white/60 font-semibold mb-0.5">
-                      Style preview
-                    </p>
-                    <p className="text-sm font-display font-bold text-white">
-                      Sleek Knotless Braids
-                    </p>
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-5 -right-3 sm:-right-6 bg-white rounded-2xl shadow-2xl shadow-plum-900/30 p-3 sm:p-4 flex items-center gap-3 border border-cream-200 w-[200px] sm:w-[220px]">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-5 h-5 text-emerald-600" strokeWidth={2.5} />
-                  </div>
-                  <div className="leading-tight min-w-0">
-                    <p className="text-[9px] text-ink-500 font-medium uppercase tracking-wide">
-                      Style match
-                    </p>
-                    <p className="text-xs font-semibold text-ink-900 truncate">
-                      Looks great on you
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            )}
+          </>
+        )}
       </section>
 
       <MarketplaceSection />
 
+      {/* ─────────── TRY-ON MODAL ─────────── */}
       {showAITryOn && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center p-0 sm:p-6 bg-plum-900/70 backdrop-blur-md overflow-y-auto animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-start justify-center p-0 sm:p-6 bg-espresso-950/70 backdrop-blur-md overflow-y-auto animate-fadeIn"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowAITryOn(false);
           }}

@@ -1,3 +1,4 @@
+// app/salons/[id]/page.tsx
 'use client';
 
 import { useState, useEffect, use } from 'react';
@@ -8,7 +9,16 @@ import ServiceCard from '../../components/ServiceCard';
 import { Salon, Service } from '../../../lib/types';
 import { resolveImageUrl } from '../../../lib/imageUrl';
 import Link from 'next/link';
-import { MapPin, Mail, Globe, Clock } from 'lucide-react';
+import {
+  MapPin,
+  Mail,
+  Globe,
+  Clock,
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ShieldCheck,
+} from 'lucide-react';
 
 export default function SalonDetailPage({
   params,
@@ -26,6 +36,9 @@ export default function SalonDetailPage({
   const [coverError, setCoverError] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
+  // Accordion state for policies
+  const [openPolicy, setOpenPolicy] = useState<string | null>(null);
+
   useEffect(() => {
     if (!id) return;
 
@@ -34,7 +47,7 @@ export default function SalonDetailPage({
 
       try {
         const [salonRes, servicesRes] = await Promise.all([
-          fetch(`/api/auth/salons/${id}`, { cache: 'no-store' }),
+          fetch(`/api/auth/salons/public/${id}`, { cache: 'no-store' }),
           fetch(`/api/auth/services/salon/${id}`, { cache: 'no-store' }),
         ]);
 
@@ -66,18 +79,17 @@ export default function SalonDetailPage({
     load();
   }, [id]);
 
-  /* -------------------------------------------------------------- */
-  /*  Loading                                                        */
-  /* -------------------------------------------------------------- */
-
+  /* ─── Loading ─── */
   if (loading) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-cream-50 py-12 px-4">
+        <main className="min-h-screen bg-espresso-50 py-12 px-4">
           <div className="container-custom text-center py-24">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-plum-200 border-t-plum-700 mx-auto" />
-            <p className="text-ink-500 mt-4 text-sm">Loading salon…</p>
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-espresso-200 border-t-primary-500 mx-auto" />
+            <p className="text-espresso-500 mt-4 text-sm font-medium">
+              Loading salon…
+            </p>
           </div>
         </main>
         <Footer />
@@ -85,28 +97,25 @@ export default function SalonDetailPage({
     );
   }
 
-  /* -------------------------------------------------------------- */
-  /*  Not found                                                      */
-  /* -------------------------------------------------------------- */
-
+  /* ─── Not found ─── */
   if (notFound || !salon) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-cream-50 py-12 px-4">
+        <main className="min-h-screen bg-espresso-50 py-12 px-4">
           <div className="container-custom max-w-md mx-auto text-center py-24">
-            <div className="w-20 h-20 mx-auto mb-5 rounded-3xl bg-plum-50 border border-plum-100 flex items-center justify-center text-3xl">
+            <div className="w-20 h-20 mx-auto mb-5 rounded-3xl bg-white border border-espresso-200 flex items-center justify-center text-3xl shadow-sm">
               🔍
             </div>
-            <h1 className="text-2xl font-display font-bold text-ink-900">
+            <h1 className="text-2xl font-display font-bold text-espresso-950">
               Salon not found
             </h1>
-            <p className="text-ink-500 mt-2 text-sm">
+            <p className="text-espresso-500 mt-2 text-sm">
               This salon doesn&apos;t exist or isn&apos;t available right now.
             </p>
             <Link
               href="/salons"
-              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-plum-700 text-white font-medium text-sm rounded-xl hover:bg-plum-800 hover:shadow-lg hover:shadow-plum-700/25 transition-all"
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-espresso-950 text-white font-medium text-sm rounded-xl hover:bg-espresso-800 transition-all shadow-md"
             >
               Back to salons
             </Link>
@@ -117,10 +126,7 @@ export default function SalonDetailPage({
     );
   }
 
-  /* -------------------------------------------------------------- */
-  /*  Loaded                                                         */
-  /* -------------------------------------------------------------- */
-
+  /* ─── Loaded ─── */
   const initial = salon.name.charAt(0).toUpperCase();
   const fullAddress = [
     salon.address,
@@ -136,26 +142,42 @@ export default function SalonDetailPage({
   const logoSrc = resolveImageUrl(salon.logoUrl);
 
   const showCover = Boolean(coverSrc) && !coverError;
+  // Only show the logo if there is actually a URL AND it hasn't errored
   const showLogo = Boolean(logoSrc) && !logoError;
+
+  // Parse opening hours (comes as a Map from the backend)
+  const openingHoursEntries =
+    salon.openingHours && typeof salon.openingHours === 'object'
+      ? Object.entries(salon.openingHours)
+      : [];
+
+  // Check if any policy exists
+  const hasPolicies =
+    Boolean(salon.termsAndConditions) ||
+    Boolean(salon.privacyPolicy) ||
+    Boolean(salon.cancellationPolicy);
 
   return (
     <>
       <Header />
 
-      <main className="min-h-screen bg-cream-50">
-        <div className="container-custom pt-8">
+      <main className="min-h-screen bg-espresso-50">
+        {/* Back Link */}
+        <div className="container-custom pt-8 pb-4">
           <Link
             href="/salons"
-            className="inline-flex items-center text-sm text-plum-700 hover:text-plum-800 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-espresso-500 hover:text-primary-600 font-medium transition-colors"
           >
-            ← Back to salons
+            <ArrowLeft className="w-4 h-4" />
+            Back to salons
           </Link>
         </div>
 
-        <section className="container-custom py-6">
-          <div className="bg-white rounded-3xl border border-cream-200 overflow-hidden shadow-[0_12px_40px_-20px_rgba(122,38,65,0.15)]">
-            {/* Hero banner — real cover image with gradient fallback */}
-            <div className="relative h-40 sm:h-56 md:h-64 bg-gradient-to-br from-rose-brand-100 via-plum-100 to-plum-200 overflow-hidden">
+        {/* ─── Hero Section ─── */}
+        <section className="container-custom pb-8">
+          <div className="bg-white rounded-3xl border border-espresso-100 overflow-hidden shadow-[0_20px_60px_-15px_rgba(42,34,31,0.15)]">
+            {/* Cover Image */}
+            <div className="relative h-56 sm:h-72 md:h-96 bg-espresso-100 overflow-hidden">
               {showCover ? (
                 <>
                   <Image
@@ -168,136 +190,185 @@ export default function SalonDetailPage({
                     priority
                     unoptimized
                   />
-                  {/* Subtle scrim for text/logo contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-plum-900/30 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-espresso-950/90 via-espresso-950/40 to-transparent" />
                 </>
               ) : (
-                <>
-                  <div
-                    className="absolute inset-0 opacity-[0.25] mix-blend-soft-light"
-                    style={{
-                      backgroundImage:
-                        'radial-gradient(circle at 1px 1px, #7a2641 1px, transparent 0)',
-                      backgroundSize: '24px 24px',
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-7xl sm:text-8xl font-display font-bold text-plum-700/30 select-none">
-                      {initial}
-                    </span>
-                  </div>
-                </>
+                <div className="absolute inset-0 flex items-center justify-center bg-espresso-50">
+                  <span className="text-8xl font-display font-bold text-espresso-200/50">
+                    {initial}
+                  </span>
+                </div>
               )}
+
+              {/* Text over the cover image */}
+              <div className="absolute bottom-6 left-6 sm:left-10 right-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-[10px] font-bold uppercase tracking-wider text-white">
+                    <Check
+                      className="w-3 h-3 text-primary-400"
+                      strokeWidth={3}
+                    />
+                    Verified Salon
+                  </span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-white drop-shadow-lg">
+                  {salon.name}
+                </h1>
+              </div>
             </div>
 
-            <div className="p-6 sm:p-8">
-              {/* Logo + name row */}
-              <div className="flex items-start gap-4">
-                {showLogo ? (
-                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-white border border-cream-200 shadow-md flex-shrink-0 -mt-10 sm:-mt-12 ring-4 ring-white">
-                    <Image
-                      src={logoSrc}
-                      alt={`${salon.name} logo`}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                      onError={() => setLogoError(true)}
-                      unoptimized
-                    />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-2xl bg-white border border-cream-200 shadow-md flex-shrink-0 -mt-10 sm:-mt-12 ring-4 ring-white flex items-center justify-center">
-                    <span className="text-2xl font-display font-bold text-plum-700">
-                      {initial}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex-1 min-w-0 pt-1">
-                  <h1 className="text-3xl sm:text-4xl font-display font-bold text-ink-900 truncate">
-                    {salon.name}
-                  </h1>
-                </div>
-              </div>
-
-              {salon.description && (
-                <p className="text-ink-600 mt-4 max-w-2xl leading-relaxed">
-                  {salon.description}
-                </p>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                {fullAddress && (
-                  <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-xl bg-plum-50 border border-plum-100 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-4 h-4 text-plum-700" />
-                    </span>
-                    <p className="text-sm text-ink-700 pt-2 leading-snug">
-                      {fullAddress}
+            {/* Salon Details */}
+            <div className="p-6 sm:p-10">
+              <div className="flex flex-col md:flex-row gap-8 md:gap-10">
+                {/* Left Col: Description & Contact */}
+                <div className="flex-1 space-y-8">
+                  <div>
+                    <h2 className="text-xl font-display font-bold text-espresso-950 mb-3">
+                      About
+                    </h2>
+                    <p className="text-espresso-600 text-base leading-relaxed">
+                      {salon.description || 'No description provided.'}
                     </p>
                   </div>
-                )}
 
-                {salon.email && (
-                  <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-xl bg-plum-50 border border-plum-100 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4 text-plum-700" />
-                    </span>
-                    <a
-                      href={`mailto:${salon.email}`}
-                      className="text-sm font-medium text-ink-700 hover:text-plum-700 transition-colors pt-2 truncate"
-                    >
-                      {salon.email}
-                    </a>
-                  </div>
-                )}
+                  <div>
+                    <h2 className="text-xl font-display font-bold text-espresso-950 mb-4">
+                      Contact &amp; Location
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {fullAddress && (
+                        <div className="flex items-start gap-3 p-4 rounded-2xl bg-espresso-50 border border-espresso-100">
+                          <MapPin className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold text-espresso-400 uppercase tracking-wider mb-1">
+                              Location
+                            </p>
+                            <p className="text-sm font-medium text-espresso-900 leading-snug">
+                              {fullAddress}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                {salon.website && (
-                  <div className="flex items-start gap-3">
-                    <span className="w-9 h-9 rounded-xl bg-plum-50 border border-plum-100 flex items-center justify-center flex-shrink-0">
-                      <Globe className="w-4 h-4 text-plum-700" />
-                    </span>
-                    <a
-                      href={salon.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-ink-700 hover:text-plum-700 transition-colors pt-2 truncate"
-                    >
-                      {salon.website}
-                    </a>
+                      {salon.email && (
+                        <a
+                          href={`mailto:${salon.email}`}
+                          className="flex items-start gap-3 p-4 rounded-2xl bg-espresso-50 border border-espresso-100 hover:border-primary-300 hover:bg-white transition-all group"
+                        >
+                          <Mail className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-espresso-400 uppercase tracking-wider mb-1 group-hover:text-primary-600 transition-colors">
+                              Email
+                            </p>
+                            <p className="text-sm font-medium text-espresso-900 truncate">
+                              {salon.email}
+                            </p>
+                          </div>
+                        </a>
+                      )}
+
+                      {salon.website && (
+                        <a
+                          href={salon.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-3 p-4 rounded-2xl bg-espresso-50 border border-espresso-100 hover:border-primary-300 hover:bg-white transition-all group"
+                        >
+                          <Globe className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-espresso-400 uppercase tracking-wider mb-1 group-hover:text-primary-600 transition-colors">
+                              Website
+                            </p>
+                            <p className="text-sm font-medium text-espresso-900 truncate">
+                              {salon.website.replace(/^https?:\/\//, '')}
+                            </p>
+                          </div>
+                        </a>
+                      )}
+                    </div>
                   </div>
-                )}
+                </div>
+
+                {/* Right Col: Logo & Opening Hours */}
+                <div className="w-full md:w-72 flex-shrink-0 space-y-6">
+                  
+                  {/* ✅ Logo Badge — Only renders if the salon has a logo */}
+                  {showLogo && (
+                    <div className="w-full aspect-square rounded-3xl overflow-hidden bg-white border border-espresso-100 shadow-xl relative hidden md:block">
+                      <Image
+                        src={logoSrc}
+                        alt={`${salon.name} logo`}
+                        fill
+                        className="object-cover"
+                        sizes="160px"
+                        onError={() => setLogoError(true)}
+                        unoptimized
+                      />
+                    </div>
+                  )}
+
+                  {/* Opening Hours Widget */}
+                  {openingHoursEntries.length > 0 && (
+                    <div className="bg-espresso-900 rounded-3xl p-6 text-white shadow-lg">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Clock className="w-5 h-5 text-primary-500" />
+                        <h3 className="font-display font-bold text-lg">
+                          Opening Hours
+                        </h3>
+                      </div>
+                      <ul className="space-y-2 text-sm">
+                        {openingHoursEntries.map(([day, hours]) => (
+                          <li
+                            key={day}
+                            className="flex justify-between items-center py-1 border-b border-white/10 last:border-0"
+                          >
+                            <span className="text-espresso-300">{day}</span>
+                            <span className="font-medium text-white">
+                              {String(hours)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="container-custom pb-16">
-          <div className="mb-6">
-            <p className="text-xs font-semibold tracking-[0.15em] text-rose-brand-600 uppercase mb-2">
-              Menu
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-display font-bold text-ink-900">
-              Services
-            </h2>
-            <p className="text-sm text-ink-500 mt-1">
+        {/* ─── Services Section ─── */}
+        <section className="container-custom pb-12">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.15em] text-primary-600 uppercase mb-2">
+                Book an appointment
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-espresso-950">
+                Services
+              </h2>
+            </div>
+            <p className="text-sm font-medium text-espresso-500 bg-white px-3 py-1 rounded-full border border-espresso-200 shadow-sm">
               {services.length}{' '}
-              {services.length === 1 ? 'service' : 'services'} available
+              {services.length === 1 ? 'service' : 'services'}
             </p>
           </div>
 
           {services.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-cream-200 p-12 text-center shadow-[0_12px_40px_-20px_rgba(122,38,65,0.12)]">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-plum-50 border border-plum-100 flex items-center justify-center">
-                <Clock className="w-7 h-7 text-plum-400" />
+            <div className="bg-white rounded-3xl border border-espresso-100 p-16 text-center shadow-sm">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-espresso-50 flex items-center justify-center">
+                <Clock className="w-10 h-10 text-espresso-300" />
               </div>
-              <p className="text-ink-700 font-medium">No services listed yet</p>
-              <p className="text-sm text-ink-500 mt-2">
-                This salon hasn&apos;t added services yet. Check back soon.
+              <h3 className="text-xl font-display font-bold text-espresso-950 mb-2">
+                No services listed yet
+              </h3>
+              <p className="text-sm text-espresso-500 max-w-sm mx-auto">
+                This salon hasn&apos;t added their services yet. Please check
+                back soon or contact them directly.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => (
                 <ServiceCard
                   key={service.id}
@@ -308,9 +379,101 @@ export default function SalonDetailPage({
             </div>
           )}
         </section>
+
+        {/* ─── Policies Section ─── */}
+        {hasPolicies && (
+          <section className="container-custom pb-20">
+            <div className="bg-white rounded-3xl border border-espresso-100 overflow-hidden shadow-sm">
+              <div className="p-6 sm:p-8 border-b border-espresso-100 flex items-center gap-3">
+                <ShieldCheck className="w-6 h-6 text-primary-500" />
+                <h2 className="text-xl font-display font-bold text-espresso-950">
+                  Salon Policies
+                </h2>
+              </div>
+
+              <div className="divide-y divide-espresso-100">
+                {/* Cancellation Policy */}
+                {salon.cancellationPolicy && (
+                  <PolicyAccordion
+                    title="Cancellation Policy"
+                    content={salon.cancellationPolicy}
+                    isOpen={openPolicy === 'cancellation'}
+                    onToggle={() =>
+                      setOpenPolicy(
+                        openPolicy === 'cancellation' ? null : 'cancellation'
+                      )
+                    }
+                  />
+                )}
+
+                {/* Terms & Conditions */}
+                {salon.termsAndConditions && (
+                  <PolicyAccordion
+                    title="Terms & Conditions"
+                    content={salon.termsAndConditions}
+                    isOpen={openPolicy === 'terms'}
+                    onToggle={() =>
+                      setOpenPolicy(openPolicy === 'terms' ? null : 'terms')
+                    }
+                  />
+                )}
+
+                {/* Privacy Policy */}
+                {salon.privacyPolicy && (
+                  <PolicyAccordion
+                    title="Privacy Policy"
+                    content={salon.privacyPolicy}
+                    isOpen={openPolicy === 'privacy'}
+                    onToggle={() =>
+                      setOpenPolicy(openPolicy === 'privacy' ? null : 'privacy')
+                    }
+                  />
+                )}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />
     </>
+  );
+}
+
+/* ─── Reusable Accordion Component for Policies ─── */
+function PolicyAccordion({
+  title,
+  content,
+  isOpen,
+  onToggle,
+}: {
+  title: string;
+  content: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="group">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-6 py-5 hover:bg-espresso-50 transition-colors text-left"
+      >
+        <span className="font-semibold text-espresso-900">{title}</span>
+        <ChevronDown
+          className={`w-5 h-5 text-espresso-400 transition-transform duration-300 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+      <div
+        className={`px-6 overflow-hidden transition-all duration-300 ${
+          isOpen ? 'max-h-[1000px] pb-6 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="prose prose-sm text-espresso-600 whitespace-pre-wrap">
+          {content}
+        </div>
+      </div>
+    </div>
   );
 }
