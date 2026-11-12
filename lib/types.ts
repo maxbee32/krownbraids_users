@@ -103,6 +103,7 @@ export interface Style {
   isNew?: boolean;
   isMarketplace?: boolean;
   description?: string;
+  termsAndConditions?: string;  
 }
 
 export interface Category {

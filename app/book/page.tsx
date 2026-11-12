@@ -20,6 +20,7 @@ import {
   MapPin,
   ChevronDown,
   Lock,
+  CheckCircle2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { loadStripe } from '@stripe/stripe-js';
