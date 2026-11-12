@@ -81,6 +81,7 @@ export interface Service {
   serviceImages?: string[];
   isActive?: boolean;
   isFeatured?: boolean;
+  termsAndConditions?: string;   // ← add this
 }
 
 /* ------------------------------------------------------------------ */
@@ -103,7 +104,7 @@ export interface Style {
   isNew?: boolean;
   isMarketplace?: boolean;
   description?: string;
-  termsAndConditions?: string;  
+  
 }
 
 export interface Category {
