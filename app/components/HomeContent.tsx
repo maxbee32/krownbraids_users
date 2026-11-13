@@ -209,18 +209,7 @@ export default function HomeContent() {
               </button>
             </div>
 
-            {/* Single-line trust row with real salon count */}
-            <p className="mt-8 text-xs sm:text-sm text-white/60 [text-shadow:0_1px_8px_rgba(0,0,0,0.35)]">
-              Free to preview ·{' '}
-              <span className="text-white/80 font-medium">
-                {loading
-                  ? '200+ verified UK salons'
-                  : `${filteredSalons.length} verified UK ${
-                      filteredSalons.length === 1 ? 'salon' : 'salons'
-                    }`}
-              </span>{' '}
-              · no account needed
-            </p>
+            
 
             {/* Slide indicator bars */}
             <div className="mt-10 flex items-center justify-center gap-2">
