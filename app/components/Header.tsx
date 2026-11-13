@@ -116,8 +116,11 @@ export default function Header() {
       />
 
       <div className="container-custom">
-        <div className="flex items-center justify-between gap-2 sm:gap-4 h-[68px] sm:h-20">
-          <Logo onClick={closeMenu} size={scrolled ? 'sm' : 'md'} />
+        <div className="flex items-center justify-between gap-2 sm:gap-4 h-[72px] sm:h-20 overflow-hidden">
+          {/* Logo wrapper — min-w-0 lets it shrink if needed */}
+          <div className="flex items-center min-w-0 [&>a]:flex [&>a]:items-center [&>a]:gap-2">
+            <Logo onClick={closeMenu} size={scrolled ? 'sm' : 'md'} />
+          </div>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-0.5 flex-1 justify-end min-w-0">
@@ -193,7 +196,7 @@ export default function Header() {
           </nav>
 
           {/* Mobile actions */}
-          <div className="flex md:hidden items-center gap-1 xs:gap-2">
+          <div className="flex md:hidden items-center gap-1 xs:gap-2 shrink-0">
             <IconLink href="/salons" label="Search" mobile>
               <Search className="w-5 h-5" />
             </IconLink>

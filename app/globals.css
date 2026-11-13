@@ -75,6 +75,12 @@
   --header-h: 70px;
 }
 
+html,
+body {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
 /* Tablet/Desktop Header Height */
 @media (min-width: 640px) {
   :root {

@@ -127,6 +127,7 @@ export default function HomeContent() {
       >
         <div className="absolute inset-0 bg-espresso-950 -z-10" />
 
+        {/* Slides with ken-burns on the active one */}
         <div className="absolute inset-0 z-0">
           {HERO_SLIDES.map((slide, index) => (
             <div
@@ -135,34 +136,56 @@ export default function HomeContent() {
                 index === activeSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
               }`}
             >
-              <Image
-                src={slide.src}
-                alt={slide.alt}
-                fill
-                priority={index === 0}
-                className="object-cover"
-                sizes="100vw"
-                unoptimized
-              />
+              <div
+                className={`relative w-full h-full ${
+                  index === activeSlide ? 'hero-kenburns' : ''
+                }`}
+              >
+                <Image
+                  src={slide.src}
+                  alt={slide.alt}
+                  fill
+                  priority={index === 0}
+                  className="object-cover"
+                  sizes="100vw"
+                  unoptimized
+                />
+              </div>
             </div>
           ))}
-          <div className="absolute inset-0 z-10 bg-gradient-to-b from-espresso-950/85 via-espresso-950/70 to-espresso-950/95" />
+
+          {/* Vertical overlay — lighter top, darker bottom for CTA readability */}
+          <div className="absolute inset-0 z-10 bg-gradient-to-b from-espresso-950/55 via-espresso-950/50 to-espresso-950/90" />
+          {/* Side vignette — moody edges, photo visible in the centre */}
+          <div className="absolute inset-0 z-10 bg-gradient-to-r from-espresso-950/50 via-transparent to-espresso-950/50" />
         </div>
 
+        {/* Content */}
         <div className="relative z-20 container-custom py-24 sm:py-32 w-full text-center">
-          <div className="max-w-4xl mx-auto">
-            
+          <div className="relative max-w-4xl mx-auto">
+            {/* Radial scrim behind text only */}
+            <div
+              aria-hidden
+              className="absolute inset-0 -z-10 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(ellipse at center, rgba(26,20,16,0.65) 0%, rgba(26,20,16,0.25) 45%, rgba(26,20,16,0) 75%)',
+                filter: 'blur(10px)',
+                transform: 'scale(1.25)',
+              }}
+            />
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-white leading-[0.95] tracking-tight">
-              Your next style,
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-white leading-[0.95] tracking-tight [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
+              Try the style on
               <br />
               <span className="bg-gradient-to-r from-primary-300 via-primary-400 to-primary-200 bg-clip-text text-transparent">
                 before you book.
               </span>
             </h1>
 
-            <p className="mt-7 sm:mt-8 text-base sm:text-lg text-white/85 max-w-2xl mx-auto leading-relaxed">
-              Preview a braid style on your photo, then book a trusted salon to bring it to life.
+            <p className="mt-7 sm:mt-8 text-base sm:text-lg text-white/85 max-w-2xl mx-auto leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.35)]">
+              Preview a braid style on your photo, then book a trusted salon to
+              bring it to life.
             </p>
 
             <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -170,7 +193,7 @@ export default function HomeContent() {
                 onClick={() => setShowAITryOn(true)}
                 className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-400 to-primary-500 text-espresso-950 font-bold text-base rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-1 active:translate-y-0 transition-all duration-300"
               >
-                <Scissors className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                <Eye className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Try on a style
               </button>
 
@@ -186,19 +209,42 @@ export default function HomeContent() {
               </button>
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-white/50">
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                Trusted UK salons
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                Free preview
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                No signup to browse
-              </span>
+            {/* Single-line trust row with real salon count */}
+            <p className="mt-8 text-xs sm:text-sm text-white/60 [text-shadow:0_1px_8px_rgba(0,0,0,0.35)]">
+              Free to preview ·{' '}
+              <span className="text-white/80 font-medium">
+                {loading
+                  ? '200+ verified UK salons'
+                  : `${filteredSalons.length} verified UK ${
+                      filteredSalons.length === 1 ? 'salon' : 'salons'
+                    }`}
+              </span>{' '}
+              · no account needed
+            </p>
+
+            {/* Slide indicator bars */}
+            <div className="mt-10 flex items-center justify-center gap-2">
+              {HERO_SLIDES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveSlide(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  aria-current={i === activeSlide}
+                  className="relative h-1 w-12 rounded-full overflow-hidden bg-white/20 hover:bg-white/30 transition-colors"
+                >
+                  <span
+                    className={`absolute inset-0 origin-left bg-primary-500 ${
+                      i === activeSlide ? 'scale-x-100' : 'scale-x-0'
+                    }`}
+                    style={{
+                      transition:
+                        i === activeSlide
+                          ? `transform ${SLIDE_INTERVAL_MS}ms linear`
+                          : 'transform 200ms ease-out',
+                    }}
+                  />
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -275,7 +321,8 @@ export default function HomeContent() {
             Find a salon near you
           </h2>
           <p className="text-base text-espresso-500 mt-3 max-w-xl mx-auto">
-            Search trusted braiding and beauty salons across the UK by name, town, or postcode.
+            Search trusted braiding and beauty salons across the UK by name,
+            town, or postcode.
           </p>
         </div>
 
@@ -406,15 +453,40 @@ export default function HomeContent() {
 
       <style jsx>{`
         @keyframes slideUp {
-          from { transform: translateY(24px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+          from {
+            transform: translateY(24px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
         }
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
-        .animate-slideUp { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-        .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+        @keyframes heroKenBurns {
+          from {
+            transform: scale(1.04);
+          }
+          to {
+            transform: scale(1.12);
+          }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+        :global(.hero-kenburns) {
+          animation: heroKenBurns 12s ease-out forwards;
+        }
       `}</style>
     </>
   );

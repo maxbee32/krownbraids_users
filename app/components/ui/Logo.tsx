@@ -16,40 +16,50 @@ export function Logo({
   size = 'md',
 }: LogoProps) {
   const heights = {
-    sm: 'h-9 sm:h-10',
-    md: 'h-11 sm:h-14',
-    lg: 'h-14 sm:h-20',
+    sm: 'h-[clamp(2rem,6vw,2.5rem)]',
+    md: 'h-[clamp(2.25rem,6.5vw,3.5rem)]', // slightly smaller min so it fits 320px
+    lg: 'h-[clamp(3rem,9vw,5rem)]',
   }[size];
 
   return (
     <Link
       href={href}
       onClick={onClick}
-      className={`group inline-flex items-center gap-2.5 sm:gap-3 flex-shrink-0 ${className}`}
+      className={`group inline-flex items-center flex-shrink-0 gap-[clamp(0.35rem,1vw,0.75rem)] max-w-full min-w-0 ${className}`}
       aria-label="Krownbraids home"
     >
+      {/* Mark */}
       <div
-        className={`relative ${heights} w-auto transition-transform duration-300 group-hover:scale-[1.02]`}
+        className={`relative ${heights} w-auto transition-transform duration-300 group-hover:scale-[1.02] shrink-0`}
       >
         <Image
           src="/assets/Krownbraids Crowned Beauty Logo.png"
           alt="Krownbraids"
           width={400}
           height={200}
-          // ✅ THE FIX: 
-          // brightness(0) turns everything black
-          // invert(1) turns the black to pure white, and the white background to black
-          // mix-blend-screen drops the black background out entirely
           className="object-contain w-auto h-full mix-blend-screen brightness-0 invert"
           priority
         />
       </div>
 
-      <div className="hidden min-[480px]:flex flex-col justify-center leading-none mt-0.5">
-        <span className={`font-display font-bold uppercase tracking-[0.12em] text-white text-sm sm:text-base md:text-lg`}>
+      {/* Wordmark — shrinks to fit, truncates cleanly if it must */}
+      <div className="flex flex-col justify-center leading-none min-w-0">
+        <span
+          className="font-display font-bold uppercase text-white truncate"
+          style={{
+            fontSize: 'clamp(0.625rem, 2.4vw, 1.125rem)', // 10px → 18px
+            letterSpacing: 'clamp(0.04em, 0.12vw, 0.12em)',
+          }}
+        >
           Krown<span className="text-primary-500">braids</span>
         </span>
-        <span className={`font-medium uppercase tracking-[0.24em] text-espresso-200 mt-1 text-[7px] sm:text-[8px] md:text-[9px]`}>
+        <span
+          className="font-medium uppercase text-espresso-200 truncate mt-[clamp(0.1rem,0.25vw,0.25rem)]"
+          style={{
+            fontSize: 'clamp(0.375rem, 1vw, 0.5625rem)', // 6px → 9px
+            letterSpacing: 'clamp(0.1em, 0.2vw, 0.24em)',
+          }}
+        >
           Wear your crown
         </span>
       </div>

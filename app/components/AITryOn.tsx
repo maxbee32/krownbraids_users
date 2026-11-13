@@ -122,7 +122,6 @@ export default function AITryOn({
     },
   ];
 
-  /* Fetch credits on mount */
   useEffect(() => {
     const fetchCredits = async () => {
       try {
@@ -146,7 +145,6 @@ export default function AITryOn({
     fetchCredits();
   }, []);
 
-  /* Lock body scroll during checkout */
   useEffect(() => {
     if (flow.phase === 'checkout') {
       document.body.style.overflow = 'hidden';
@@ -158,7 +156,6 @@ export default function AITryOn({
     };
   }, [flow.phase]);
 
-  /* Block screenshot shortcuts */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -180,7 +177,6 @@ export default function AITryOn({
     };
   }, []);
 
-  /* ─── Camera + upload ─── */
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -324,9 +320,6 @@ export default function AITryOn({
     stripRef.current?.scrollBy({ left: dir * 240, behavior: 'smooth' });
   };
 
-  /* ============================================================
-     GENERATE
-     ============================================================ */
   const handleGenerate = async () => {
     if (!selectedImage || !selectedStyleForTryOn) return;
 
@@ -450,9 +443,6 @@ export default function AITryOn({
     }
   };
 
-  /* ============================================================
-     UNLOCK DOWNLOAD
-     ============================================================ */
   const handleUnlockDownload = async () => {
     if (flow.phase !== 'preview' || !flow.purchaseId) {
       setErrorMessage('Purchase not ready. Please try again.');
@@ -573,15 +563,11 @@ export default function AITryOn({
     }
   };
 
-  /* ============================================================
-     Render
-     ============================================================ */
   const selectedStyleThumb = selectedStyleForTryOn?.image
     ? resolveImageUrl(selectedStyleForTryOn.image)
     : '';
 
   const isPreview = flow.phase === 'preview';
-  const isCheckout = flow.phase === 'checkout';
   const isGenerating = flow.phase === 'generating';
   const isPaid = isPreview && flow.paid;
   const showResultImage = isPreview || isGenerating;
@@ -593,19 +579,19 @@ export default function AITryOn({
 
   return (
     <>
-      {/* SHELL — fixed header, scrollable body, nothing clipped */}
-      <div className="bg-white rounded-3xl border border-cream-200 overflow-hidden shadow-[0_30px_80px_-30px_rgba(122,38,65,0.45)] flex flex-col max-h-[92vh]">
+      {/* Shell — single flex column, fixed header, one scroll body */}
+      <div className="bg-white rounded-3xl border border-espresso-100 overflow-hidden shadow-[0_30px_80px_-30px_rgba(42,34,31,0.45)] flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-5 sm:px-7 py-4 sm:py-5 border-b border-cream-200 flex items-center justify-between bg-gradient-to-r from-cream-50 via-white to-plum-50/50 shrink-0">
+        <div className="flex items-center justify-between shrink-0 px-5 sm:px-7 py-4 sm:py-5 border-b border-espresso-100 bg-espresso-50">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-plum-700 to-rose-brand-600 flex items-center justify-center shadow-md shadow-plum-700/30 shrink-0">
-              <Camera className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 rounded-2xl bg-espresso-950 flex items-center justify-center shrink-0 shadow-md shadow-espresso-950/20">
+              <Camera className="w-5 h-5 text-primary-400" strokeWidth={2.2} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg sm:text-xl font-display font-bold text-ink-900 truncate">
+              <h2 className="text-lg sm:text-xl font-display font-bold text-espresso-950 truncate">
                 Try On Styles
               </h2>
-              <p className="text-[11px] sm:text-xs text-ink-500 truncate">
+              <p className="text-[11px] sm:text-xs text-espresso-500 truncate">
                 Preview any style on your photo in seconds
               </p>
             </div>
@@ -619,56 +605,60 @@ export default function AITryOn({
               className="p-2 hover:bg-white rounded-xl transition-colors shrink-0"
               aria-label="Close"
             >
-              <X className="w-5 h-5 text-ink-600" />
+              <X className="w-5 h-5 text-espresso-600" />
             </button>
           )}
         </div>
 
-        {/* Body — scrolls as one unit */}
+        {/* Body — only scroll container */}
         <div className="flex-1 min-h-0 overflow-y-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-7 p-5 sm:p-7">
-            {/* ───────── LEFT: photo (hero) ───────── */}
+            {/* ─── Left: photo / upload / camera ─── */}
             <div className="lg:col-span-7">
               {!showResultImage && (
-                <div className="flex gap-2 mb-4 p-1 bg-plum-50/70 rounded-2xl border border-plum-100 w-fit">
+                <div className="flex gap-2 mb-4 p-1 rounded-2xl w-fit bg-espresso-50 border border-espresso-100">
                   <button
                     onClick={() => handleTabChange('upload')}
-                    className={`py-2 px-5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    className={`py-2 px-5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       activeTab === 'upload'
-                        ? 'bg-plum-700 text-white shadow-sm'
-                        : 'text-plum-700 hover:bg-plum-100'
+                        ? 'bg-espresso-950 text-white shadow-sm'
+                        : 'text-espresso-700 hover:bg-white'
                     }`}
                   >
-                    <Upload className="w-4 h-4" /> Upload
+                    <Upload className="w-4 h-4" strokeWidth={2.2} /> Upload
                   </button>
                   <button
                     onClick={() => handleTabChange('camera')}
-                    className={`py-2 px-5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    className={`py-2 px-5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       activeTab === 'camera'
-                        ? 'bg-plum-700 text-white shadow-sm'
-                        : 'text-plum-700 hover:bg-plum-100'
+                        ? 'bg-espresso-950 text-white shadow-sm'
+                        : 'text-espresso-700 hover:bg-white'
                     }`}
                   >
-                    <Camera className="w-4 h-4" /> Camera
+                    <Camera className="w-4 h-4" strokeWidth={2.2} /> Camera
                   </button>
                 </div>
               )}
 
               {!displayImage ? (
-                <div className="relative">
+                <div>
+                  {/* Upload dropzone — square, capped height */}
                   {activeTab === 'upload' && (
-                    <label className="w-full aspect-[4/5] max-h-[70vh] mx-auto border-2 border-dashed border-cream-300 rounded-3xl hover:border-plum-400 transition-colors bg-gradient-to-br from-cream-50 to-plum-50/40 hover:from-plum-50 hover:to-rose-brand-50/40 flex flex-col items-center justify-center gap-4 cursor-pointer">
-                      <div className="w-20 h-20 rounded-full bg-white border border-cream-200 flex items-center justify-center shadow-sm">
-                        <Upload className="w-8 h-8 text-plum-700" />
+                    <label className="w-full aspect-square max-h-[55vh] rounded-3xl border-2 border-dashed border-espresso-200 hover:border-primary-400 transition-colors bg-gradient-to-br from-espresso-50 to-white flex flex-col items-center justify-center gap-4 cursor-pointer p-8">
+                      <div className="w-20 h-20 rounded-full bg-white border border-espresso-200 flex items-center justify-center shadow-sm">
+                        <Upload
+                          className="w-8 h-8 text-espresso-950"
+                          strokeWidth={2}
+                        />
                       </div>
-                      <div className="text-center px-6">
-                        <p className="font-semibold text-ink-900 text-base">
+                      <div className="text-center">
+                        <p className="font-semibold text-espresso-950 text-base">
                           Upload a photo
                         </p>
-                        <p className="text-xs text-ink-500 mt-1">
+                        <p className="text-xs text-espresso-500 mt-1">
                           JPG or PNG, up to 10MB
                         </p>
-                        <p className="text-xs text-plum-700 mt-3 font-semibold">
+                        <p className="text-xs text-primary-600 mt-3 font-semibold">
                           Click to browse files
                         </p>
                       </div>
@@ -682,10 +672,15 @@ export default function AITryOn({
                     </label>
                   )}
 
+                  {/* Live camera */}
                   <div
-                    className={`relative rounded-3xl overflow-hidden bg-black aspect-[4/5] max-h-[70vh] mx-auto ${
-                      activeTab === 'camera' && isCameraActive ? '' : 'hidden'
-                    }`}
+                    className="relative rounded-3xl overflow-hidden bg-black mx-auto aspect-square max-h-[55vh]"
+                    style={{
+                      display:
+                        activeTab === 'camera' && isCameraActive
+                          ? 'block'
+                          : 'none',
+                    }}
                   >
                     <video
                       ref={videoRef}
@@ -702,61 +697,78 @@ export default function AITryOn({
                         disabled={!videoReady}
                         aria-label="Capture photo"
                       >
-                        <Camera className="w-7 h-7 text-plum-700" />
+                        <Camera
+                          className="w-7 h-7 text-espresso-950"
+                          strokeWidth={2.2}
+                        />
                       </button>
                       <button
                         onClick={stopCamera}
                         className="p-4 bg-red-500 rounded-full shadow-lg hover:scale-110 transition-transform text-white"
                         aria-label="Stop camera"
                       >
-                        <X className="w-5 h-5" />
+                        <X className="w-5 h-5" strokeWidth={2.2} />
                       </button>
                     </div>
                   </div>
 
+                  {/* Camera loading */}
                   {activeTab === 'camera' && isCameraLoading && !isCameraActive && (
-                    <div className="aspect-[4/5] max-h-[70vh] flex flex-col items-center justify-center bg-gradient-to-br from-cream-50 to-plum-50/40 rounded-3xl border-2 border-cream-200">
-                      <Loader2 className="w-10 h-10 text-plum-700 animate-spin mb-3" />
-                      <p className="text-ink-900 font-medium">Starting camera…</p>
+                    <div className="aspect-square max-h-[55vh] flex flex-col items-center justify-center rounded-3xl border-2 border-espresso-100 bg-gradient-to-br from-espresso-50 to-white">
+                      <Loader2 className="w-10 h-10 text-espresso-950 animate-spin mb-3" />
+                      <p className="text-espresso-950 font-medium">
+                        Starting camera…
+                      </p>
                     </div>
                   )}
 
+                  {/* Camera error */}
                   {activeTab === 'camera' && cameraError && !isCameraActive && (
-                    <div className="aspect-[4/5] max-h-[70vh] flex flex-col items-center justify-center bg-red-50 rounded-3xl border-2 border-red-200 px-6 text-center">
+                    <div className="aspect-square max-h-[55vh] flex flex-col items-center justify-center bg-red-50 rounded-3xl border-2 border-red-200 px-6 text-center">
                       <AlertCircle className="w-12 h-12 text-red-500 mb-3" />
-                      <p className="text-red-700 font-medium mb-3">{cameraError}</p>
+                      <p className="text-red-700 font-medium mb-3">
+                        {cameraError}
+                      </p>
                       <button
                         onClick={startCamera}
-                        className="px-6 py-2.5 bg-plum-700 text-white rounded-xl hover:bg-plum-800 flex items-center gap-2 mx-auto"
+                        className="px-6 py-2.5 bg-espresso-950 hover:bg-primary-500 hover:text-espresso-950 text-white rounded-xl flex items-center gap-2 font-semibold transition-colors"
                       >
-                        <RefreshCw className="w-4 h-4" /> Try Again
+                        <RefreshCw className="w-4 h-4" strokeWidth={2.2} /> Try
+                        Again
                       </button>
                     </div>
                   )}
 
+                  {/* Camera idle */}
                   {activeTab === 'camera' &&
                     !isCameraLoading &&
                     !isCameraActive &&
                     !cameraError && (
                       <button
                         onClick={startCamera}
-                        className="w-full aspect-[4/5] max-h-[70vh] mx-auto border-2 border-dashed border-cream-300 rounded-3xl hover:border-plum-400 transition-colors bg-gradient-to-br from-cream-50 to-plum-50/40 hover:from-plum-50 hover:to-rose-brand-50/40 flex flex-col items-center justify-center gap-4"
+                        className="w-full aspect-square max-h-[55vh] rounded-3xl border-2 border-dashed border-espresso-200 hover:border-primary-400 transition-colors bg-gradient-to-br from-espresso-50 to-white flex flex-col items-center justify-center gap-4"
                       >
-                        <div className="w-20 h-20 rounded-full bg-white border border-cream-200 flex items-center justify-center shadow-sm">
-                          <Camera className="w-8 h-8 text-plum-700" />
+                        <div className="w-20 h-20 rounded-full bg-white border border-espresso-200 flex items-center justify-center shadow-sm">
+                          <Camera
+                            className="w-8 h-8 text-espresso-950"
+                            strokeWidth={2}
+                          />
                         </div>
                         <div className="text-center">
-                          <p className="font-semibold text-ink-900 text-base">
+                          <p className="font-semibold text-espresso-950 text-base">
                             Start Camera
                           </p>
-                          <p className="text-xs text-ink-500 mt-1">Take a selfie</p>
+                          <p className="text-xs text-espresso-500 mt-1">
+                            Take a selfie
+                          </p>
                         </div>
                       </button>
                     )}
                 </div>
               ) : (
+                /* Result image */
                 <div
-                  className="relative rounded-3xl overflow-hidden bg-cream-100 border border-cream-200 select-none shadow-[0_20px_50px_-20px_rgba(122,38,65,0.35)] aspect-[4/5] max-h-[70vh] mx-auto"
+                  className="relative rounded-3xl overflow-hidden bg-espresso-50 mx-auto select-none aspect-square max-h-[55vh] border border-espresso-100 shadow-[0_20px_50px_-20px_rgba(42,34,31,0.35)]"
                   onContextMenu={(e) => e.preventDefault()}
                 >
                   <Image
@@ -769,8 +781,8 @@ export default function AITryOn({
                   />
 
                   {isGenerating && (
-                    <div className="absolute inset-0 bg-plum-900/85 backdrop-blur-sm flex flex-col items-center justify-center text-center px-6 z-30">
-                      <Loader2 className="w-12 h-12 text-rose-brand-300 animate-spin" />
+                    <div className="absolute inset-0 bg-espresso-950/85 backdrop-blur-sm flex flex-col items-center justify-center text-center px-6 z-30">
+                      <Loader2 className="w-12 h-12 text-primary-400 animate-spin" />
                       <p className="mt-4 text-sm font-semibold text-white">
                         Generating your preview…
                       </p>
@@ -782,8 +794,8 @@ export default function AITryOn({
 
                   {isPreview && !isPaid && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden opacity-25 z-20">
-                      <p className="text-white text-5xl font-bold uppercase tracking-widest rotate-[-30deg] whitespace-nowrap drop-shadow-lg">
-                        KrownBraids Preview
+                      <p className="text-white text-4xl font-bold uppercase tracking-widest rotate-[-30deg] whitespace-nowrap drop-shadow-lg">
+                        Preview
                       </p>
                     </div>
                   )}
@@ -796,7 +808,7 @@ export default function AITryOn({
                   {isPreview && (
                     <div
                       className={`absolute top-4 right-4 z-30 px-3 py-1.5 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg ${
-                        isPaid ? 'bg-emerald-500' : 'bg-plum-700'
+                        isPaid ? 'bg-emerald-500' : 'bg-espresso-950'
                       }`}
                     >
                       <Check className="w-3 h-3" />
@@ -810,7 +822,10 @@ export default function AITryOn({
                       className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white shadow-lg transition-all hover:scale-110"
                       aria-label="Reset photo"
                     >
-                      <RotateCcw className="w-5 h-5 text-plum-700" />
+                      <RotateCcw
+                        className="w-5 h-5 text-espresso-950"
+                        strokeWidth={2.2}
+                      />
                     </button>
                   </div>
                 </div>
@@ -818,17 +833,17 @@ export default function AITryOn({
 
               {errorMessage && (
                 <div className="mt-3 p-3 bg-red-50 rounded-xl border border-red-200 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-red-700">{errorMessage}</p>
                 </div>
               )}
             </div>
 
-            {/* ───────── RIGHT: picker + CTA ───────── */}
+            {/* ─── Right: picker + CTA ─── */}
             <div className="lg:col-span-5 flex flex-col">
               {/* Selected style summary */}
-              <div className="rounded-2xl p-3 mb-4 border bg-gradient-to-br from-cream-50 to-plum-50/60 border-cream-200 flex items-center gap-3">
-                <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-cream-200 flex-shrink-0 shadow-sm">
+              <div className="rounded-2xl p-3 mb-4 flex items-center gap-3 border border-espresso-100 bg-espresso-50">
+                <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-espresso-100 shrink-0 shadow-sm">
                   {selectedStyleThumb ? (
                     <Image
                       src={selectedStyleThumb}
@@ -838,19 +853,19 @@ export default function AITryOn({
                       unoptimized
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-plum-300">
-                      <ImageIcon className="w-6 h-6" />
+                    <div className="w-full h-full flex items-center justify-center text-espresso-300">
+                      <ImageIcon className="w-6 h-6" strokeWidth={2} />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-plum-700 mb-0.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider mb-0.5 text-primary-600">
                     Selected style
                   </p>
-                  <p className="text-sm font-display font-bold text-ink-900 truncate">
+                  <p className="text-sm font-display font-bold text-espresso-950 truncate">
                     {selectedStyleForTryOn?.name || 'None yet'}
                   </p>
-                  <p className="text-[11px] text-ink-500 truncate">
+                  <p className="text-[11px] text-espresso-500 truncate">
                     {selectedStyleForTryOn?.category || 'Pick one below'}
                   </p>
                 </div>
@@ -864,38 +879,38 @@ export default function AITryOn({
                     className="p-1.5 hover:bg-white rounded-lg transition-colors"
                     aria-label="Clear selected style"
                   >
-                    <X className="w-4 h-4 text-ink-500" />
+                    <X className="w-4 h-4 text-espresso-500" strokeWidth={2.2} />
                   </button>
                 )}
               </div>
 
-              {/* Horizontal style strip */}
+              {/* Style strip */}
               {flow.phase === 'idle' && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-semibold text-ink-700">
+                    <p className="text-xs font-semibold text-espresso-700">
                       Popular styles
                     </p>
                     <div className="flex gap-1">
                       <button
                         onClick={() => scrollStrip(-1)}
-                        className="p-1 rounded-md hover:bg-cream-100 text-ink-500"
+                        className="p-1 rounded-md hover:bg-espresso-100 text-espresso-600"
                         aria-label="Scroll left"
                       >
-                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-4 h-4" strokeWidth={2.2} />
                       </button>
                       <button
                         onClick={() => scrollStrip(1)}
-                        className="p-1 rounded-md hover:bg-cream-100 text-ink-500"
+                        className="p-1 rounded-md hover:bg-espresso-100 text-espresso-600"
                         aria-label="Scroll right"
                       >
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-4 h-4" strokeWidth={2.2} />
                       </button>
                     </div>
                   </div>
                   <div
                     ref={stripRef}
-                    className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin"
+                    className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory"
                   >
                     {popularStyles.map((style) => {
                       const styleThumb = resolveImageUrl(style.image);
@@ -904,13 +919,13 @@ export default function AITryOn({
                         <button
                           key={style.id}
                           onClick={() => handleStyleSelect(style)}
-                          className={`group snap-start shrink-0 w-36 text-left rounded-2xl border overflow-hidden transition-all ${
+                          className={`group snap-start shrink-0 w-32 text-left rounded-2xl overflow-hidden transition-all ${
                             isSelected
-                              ? 'border-plum-700 ring-2 ring-plum-200 bg-plum-50'
-                              : 'border-cream-200 bg-white hover:border-plum-300 hover:shadow-md'
+                              ? 'border-2 border-primary-500 ring-2 ring-primary-200 bg-primary-50'
+                              : 'border border-espresso-100 bg-white hover:shadow-md hover:border-primary-300'
                           }`}
                         >
-                          <div className="relative w-full aspect-[4/5] bg-cream-100 overflow-hidden">
+                          <div className="relative w-full aspect-[4/5] bg-espresso-100 overflow-hidden">
                             {styleThumb ? (
                               <Image
                                 src={styleThumb}
@@ -920,21 +935,21 @@ export default function AITryOn({
                                 unoptimized
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-plum-300">
-                                <ImageIcon className="w-8 h-8" />
+                              <div className="w-full h-full flex items-center justify-center text-espresso-300">
+                                <ImageIcon className="w-8 h-8" strokeWidth={2} />
                               </div>
                             )}
                             {isSelected && (
-                              <span className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-plum-700 text-white flex items-center justify-center shadow">
-                                <Check className="w-3.5 h-3.5" />
+                              <span className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-primary-500 text-espresso-950 flex items-center justify-center shadow">
+                                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                               </span>
                             )}
                           </div>
                           <div className="p-2">
-                            <p className="text-xs font-semibold text-ink-900 truncate">
+                            <p className="text-xs font-semibold text-espresso-950 truncate">
                               {style.name}
                             </p>
-                            <p className="text-[10px] text-ink-500 truncate">
+                            <p className="text-[10px] text-espresso-500 truncate">
                               {style.category}
                             </p>
                           </div>
@@ -945,8 +960,8 @@ export default function AITryOn({
                 </div>
               )}
 
-              {/* CTA — pinned at bottom of column */}
-              <div className="mt-auto pt-3 border-t border-cream-200">
+              {/* CTA */}
+              <div className="mt-auto pt-4 border-t border-espresso-100">
                 {flow.phase === 'idle' && (
                   <>
                     <button
@@ -957,23 +972,26 @@ export default function AITryOn({
                         isCheckingCredits ||
                         creditsRemaining === 0
                       }
-                      className="w-full py-3.5 bg-gradient-to-r from-plum-700 to-rose-brand-600 text-white font-semibold rounded-2xl transition-all hover:shadow-lg hover:shadow-plum-700/25 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-3.5 bg-espresso-950 text-white font-semibold rounded-2xl transition-all hover:bg-primary-500 hover:text-espresso-950 hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-espresso-950 disabled:hover:text-white flex items-center justify-center gap-2"
                     >
                       {isCheckingCredits ? (
                         <>
-                          <Loader2 className="w-5 h-5 animate-spin" /> Checking limits…
+                          <Loader2 className="w-5 h-5 animate-spin" /> Checking
+                          limits…
                         </>
                       ) : creditsRemaining === 0 ? (
                         <>
-                          <Lock className="w-5 h-5" /> Daily limit reached
+                          <Lock className="w-5 h-5" strokeWidth={2.2} /> Daily
+                          limit reached
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-5 h-5" /> Generate preview
+                          <Sparkles className="w-5 h-5" strokeWidth={2.2} />{' '}
+                          Generate preview
                         </>
                       )}
                     </button>
-                    <p className="mt-2 text-[11px] text-ink-400 text-center">
+                    <p className="mt-2 text-[11px] text-espresso-400 text-center">
                       {isCheckingCredits
                         ? 'Loading…'
                         : creditsRemaining !== null
@@ -986,12 +1004,12 @@ export default function AITryOn({
                 )}
 
                 {flow.phase === 'generating' && (
-                  <div className="w-full py-5 rounded-2xl bg-plum-50 border border-plum-100 text-center">
-                    <Loader2 className="w-6 h-6 text-plum-700 animate-spin mx-auto" />
-                    <p className="mt-2 text-sm font-semibold text-ink-900">
+                  <div className="w-full py-5 rounded-2xl bg-espresso-50 border border-espresso-100 text-center">
+                    <Loader2 className="w-6 h-6 text-espresso-950 animate-spin mx-auto" />
+                    <p className="mt-2 text-sm font-semibold text-espresso-950">
                       Generating your preview
                     </p>
-                    <p className="text-xs text-ink-500 mt-0.5">
+                    <p className="text-xs text-espresso-500 mt-0.5">
                       About 10 seconds
                     </p>
                   </div>
@@ -1003,15 +1021,17 @@ export default function AITryOn({
                       <button
                         onClick={handleUnlockDownload}
                         disabled={isStartingCheckout || !flow.purchaseId}
-                        className="w-full py-3.5 bg-gradient-to-r from-plum-700 to-rose-brand-600 text-white font-semibold rounded-2xl transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-40"
+                        className="w-full py-3.5 bg-espresso-950 text-white font-semibold rounded-2xl transition-all hover:bg-primary-500 hover:text-espresso-950 hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-40 disabled:hover:bg-espresso-950 disabled:hover:text-white"
                       >
                         {isStartingCheckout ? (
                           <>
-                            <Loader2 className="w-5 h-5 animate-spin" /> Starting checkout…
+                            <Loader2 className="w-5 h-5 animate-spin" /> Starting
+                            checkout…
                           </>
                         ) : (
                           <>
-                            <Lock className="w-5 h-5" /> Unlock download
+                            <Lock className="w-5 h-5" strokeWidth={2.2} /> Unlock
+                            download
                           </>
                         )}
                       </button>
@@ -1020,7 +1040,8 @@ export default function AITryOn({
                         onClick={handleDownload}
                         className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-2xl transition-all hover:bg-emerald-700 hover:shadow-lg flex items-center justify-center gap-2"
                       >
-                        <Download className="w-5 h-5" /> Download image
+                        <Download className="w-5 h-5" strokeWidth={2.2} />{' '}
+                        Download image
                       </button>
                     )}
                     <button
@@ -1028,7 +1049,7 @@ export default function AITryOn({
                         setFlow({ phase: 'idle' });
                         setErrorMessage(null);
                       }}
-                      className="mt-2 w-full py-2.5 text-sm font-medium text-plum-700 border border-plum-200 rounded-xl hover:bg-plum-50 transition-colors"
+                      className="mt-2 w-full py-2.5 text-sm font-medium text-espresso-700 border border-espresso-200 rounded-xl hover:bg-espresso-50 transition-colors"
                     >
                       Try another style
                     </button>
@@ -1036,17 +1057,17 @@ export default function AITryOn({
                 )}
 
                 {!selectedImage && flow.phase === 'idle' && (
-                  <div className="mt-3 p-2.5 bg-plum-50 rounded-xl border border-plum-100">
-                    <p className="text-xs text-plum-700 text-center flex items-center justify-center gap-1.5 font-medium">
-                      <ImageIcon className="w-3.5 h-3.5" />
+                  <div className="mt-3 p-2.5 rounded-xl bg-espresso-50 border border-espresso-100">
+                    <p className="text-xs text-espresso-600 text-center flex items-center justify-center gap-1.5 font-medium">
+                      <ImageIcon className="w-3.5 h-3.5" strokeWidth={2.2} />
                       Upload or take a photo to get started
                     </p>
                   </div>
                 )}
 
                 {selectedImage && !selectedStyleForTryOn && flow.phase === 'idle' && (
-                  <div className="mt-3 p-2.5 bg-rose-brand-50 rounded-xl border border-rose-brand-200">
-                    <p className="text-xs text-rose-brand-700 text-center font-medium">
+                  <div className="mt-3 p-2.5 rounded-xl bg-primary-50 border border-primary-200">
+                    <p className="text-xs text-primary-700 text-center font-medium">
                       Select a hairstyle above to try on
                     </p>
                   </div>
@@ -1059,12 +1080,14 @@ export default function AITryOn({
 
       {/* Checkout modal */}
       {flow.phase === 'checkout' && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-plum-900/60 backdrop-blur-sm p-0 sm:p-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-espresso-950/70 backdrop-blur-sm p-0 sm:p-4">
           <div className="bg-white w-full max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh] sm:max-h-[85vh]">
-            <div className="px-6 py-4 border-b border-cream-200 flex items-center justify-between bg-cream-50 rounded-t-3xl shrink-0">
+            <div className="px-6 py-4 border-b border-espresso-100 flex items-center justify-between bg-espresso-50 rounded-t-3xl shrink-0">
               <div>
-                <h3 className="text-lg font-bold text-ink-900">Unlock Download</h3>
-                <p className="text-xs text-ink-500 mt-0.5">
+                <h3 className="text-lg font-bold text-espresso-950">
+                  Unlock Download
+                </h3>
+                <p className="text-xs text-espresso-500 mt-0.5">
                   One-time payment to unlock your preview
                 </p>
               </div>
@@ -1077,18 +1100,22 @@ export default function AITryOn({
                     paid: false,
                   })
                 }
-                className="p-2 bg-white hover:bg-plum-100 rounded-full transition-colors shadow-sm"
+                className="p-2 bg-white hover:bg-espresso-100 rounded-full transition-colors shadow-sm"
                 aria-label="Cancel checkout"
               >
-                <X className="w-5 h-5 text-ink-500" />
+                <X className="w-5 h-5 text-espresso-500" strokeWidth={2.2} />
               </button>
             </div>
             <div className="p-4 sm:p-6 overflow-y-auto w-full">
               {isStartingCheckout ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Loader2 className="w-10 h-10 text-plum-700 animate-spin mb-4" />
-                  <p className="font-semibold text-ink-900">Verifying payment…</p>
-                  <p className="text-sm text-ink-500 mt-1">Please wait a moment.</p>
+                  <Loader2 className="w-10 h-10 text-espresso-950 animate-spin mb-4" />
+                  <p className="font-semibold text-espresso-950">
+                    Verifying payment…
+                  </p>
+                  <p className="text-sm text-espresso-500 mt-1">
+                    Please wait a moment.
+                  </p>
                 </div>
               ) : (
                 <EmbeddedCheckoutProvider
